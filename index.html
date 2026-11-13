@@ -252,12 +252,14 @@
                     
                     <!-- 永田ザウルス SSRカード本体 -->
                     <div id="hero-featured-card" class="tcg-card card-ssr w-72 sm:w-80 p-4 relative z-10 select-none">
-                        <!-- カードヘッダー -->
+                        <!-- カードヘッダー：タイプと右上の強さの数字 -->
                         <div class="flex justify-between items-center mb-2">
-                            <span class="bg-gradient-to-r from-yellow-300 via-pachi-gold to-amber-500 text-black font-display px-3 py-0.5 rounded-lg text-sm shadow">
-                                ★ SSR
+                            <span class="bg-black/60 border border-pachi-gold/50 text-yellow-200 font-bold px-2.5 py-0.5 rounded-lg text-xs">
+                                恐竜・覇王属
                             </span>
-                            <span class="text-xs font-bold text-yellow-200 tracking-wider">No.001 / 恐竜・覇王属</span>
+                            <div class="bg-gradient-to-r from-yellow-300 via-pachi-gold to-amber-500 text-black font-display px-3 py-0.5 rounded-lg text-base shadow">
+                                9999
+                            </div>
                         </div>
 
                         <!-- カードイラスト枠 (カスタムSVGイラスト) -->
@@ -288,35 +290,20 @@
                         </div>
 
                         <!-- カード名 -->
-                        <div class="text-center mb-2">
+                        <div class="text-center mb-3">
                             <h2 class="font-display text-2xl text-white tracking-wider neon-text-gold">永田ザウルス</h2>
                         </div>
 
-                        <!-- ステータス -->
-                        <div class="grid grid-cols-2 gap-2 mb-3">
-                            <div class="bg-black/60 border border-red-500/50 rounded-lg py-1 px-2 text-center">
-                                <span class="text-[10px] text-red-400 block font-bold">ATTACK</span>
-                                <span class="font-display text-lg text-white">3500</span>
-                            </div>
-                            <div class="bg-black/60 border border-blue-500/50 rounded-lg py-1 px-2 text-center">
-                                <span class="text-[10px] text-blue-400 block font-bold">DEFENSE</span>
-                                <span class="font-display text-lg text-white">3000</span>
-                            </div>
-                        </div>
-
-                        <!-- 特殊能力・フレーバーテキスト -->
-                        <div class="bg-black/70 rounded-xl p-2.5 border border-pachi-gold/40 text-xs space-y-1.5">
-                            <p class="text-pachi-gold font-bold">
-                                【特殊効果】覇王の咆哮：召喚時、相手の場のカードを1枚吹き飛ばす！
-                            </p>
-                            <p class="text-gray-300 italic text-[11px] leading-snug">
-                                「チャイムが鳴るその瞬間まで、奴の進撃を止められる者は誰もいない…！」
+                        <!-- 説明文 -->
+                        <div class="bg-black/70 rounded-xl p-3 border border-pachi-gold/40 text-xs space-y-1.5">
+                            <p class="text-yellow-100 leading-relaxed">
+                                【覇王の咆哮】召喚時、相手の場のカードを1枚吹き飛ばす！チャイムが鳴るその瞬間まで、奴の進撃を止められる者は誰もいない…！
                             </p>
                         </div>
                     </div>
                 </div>
                 <span class="mt-4 text-xs text-pachi-gold font-bold tracking-widest uppercase">
-                    <i class="fa-solid fa-crown mr-1"></i> 看板最高レアリティカード「永田ザウルス」
+                    <i class="fa-solid fa-crown mr-1"></i> 看板カード「永田ザウルス」
                 </span>
             </div>
         </div>
@@ -329,15 +316,27 @@
         <section id="news" class="scroll-mt-24">
             <div class="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-white/10 pb-4">
                 <div>
-                    <span class="text-pachi-cyan font-bold text-xs tracking-widest uppercase">INFORMATION</span>
+                    <span class="text-pachi-cyan font-bold text-xs tracking-widest uppercase">NEWS & INFORMATION</span>
                     <h2 class="font-display text-2xl sm:text-3xl text-white flex items-center gap-2">
-                        <i class="fa-solid fa-bullhorn text-pachi-pink"></i> 最新お知らせ
+                        <i class="fa-solid fa-bullhorn text-pachi-pink"></i> お知らせ一覧
+                        <span id="news-count-badge" class="text-xs font-sans font-bold bg-white/10 text-pachi-cyan px-2.5 py-1 rounded-full ml-1">0件</span>
                     </h2>
                 </div>
-                <!-- 管理者用：お知らせ追加ボタン -->
-                <button onclick="openNewsModal()" class="admin-only hidden bg-pachi-pink hover:bg-pink-600 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-lg transition cursor-pointer">
-                    <i class="fa-solid fa-plus mr-1"></i> お知らせを追加
-                </button>
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- お知らせカテゴリーフィルター -->
+                    <select id="news-tag-filter" onchange="renderNews()" class="bg-pachi-card border border-white/20 text-white text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-pachi-cyan">
+                        <option value="ALL">すべてのお知らせ</option>
+                        <option value="新弾情報">新弾情報</option>
+                        <option value="カード情報">カード情報</option>
+                        <option value="大会・イベント">大会・イベント</option>
+                        <option value="ルール改定">ルール改定</option>
+                        <option value="お知らせ">お知らせ</option>
+                    </select>
+                    <!-- 管理者用：お知らせ追加ボタン -->
+                    <button onclick="openNewsModal()" class="admin-only hidden bg-pachi-pink hover:bg-pink-600 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-lg transition cursor-pointer">
+                        <i class="fa-solid fa-plus mr-1"></i> お知らせを追加
+                    </button>
+                </div>
             </div>
 
             <div id="news-list" class="space-y-3">
@@ -377,13 +376,9 @@
                     </h2>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
-                    <!-- レアリティフィルター -->
-                    <select id="rarity-filter" onchange="renderCards()" class="bg-pachi-card border border-white/20 text-white text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-pachi-cyan">
-                        <option value="ALL">すべて表示</option>
-                        <option value="SSR">★ SSR (超激レア)</option>
-                        <option value="SR">◆ SR (激レア)</option>
-                        <option value="R">● R (レア)</option>
-                        <option value="N">・ N (ノーマル)</option>
+                    <!-- タイプフィルター -->
+                    <select id="type-filter" onchange="renderCards()" class="bg-pachi-card border border-white/20 text-white text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-pachi-cyan">
+                        <option value="ALL">すべてのタイプ</option>
                     </select>
                     <!-- 管理者用：カード追加ボタン -->
                     <button onclick="openCardModal()" class="admin-only hidden bg-gradient-to-r from-pachi-gold to-amber-500 text-pachi-dark font-black px-4 py-2 rounded-xl text-sm shadow-lg transition cursor-pointer">
@@ -424,7 +419,7 @@
         <div class="max-w-6xl mx-auto space-y-4">
             <div class="font-display text-xl text-white">パチモンカード製作委員会</div>
             <p class="text-xs text-gray-500">
-                ※このサイトは学校発のオリジナルカードゲーム「パチモンカード」の非公式・応援公式サイトです。
+                © 2026 パチモンカード製作委員会 All Rights Reserved.｜学校発オリジナルカードゲーム「パチモンカード」公式サイト
             </p>
             <div class="pt-4">
                 <button onclick="openLoginModal()" id="footer-login-btn" class="inline-flex items-center gap-2 bg-white/5 hover:bg-white/15 text-gray-300 hover:text-pachi-cyan border border-white/10 px-5 py-2.5 rounded-full text-xs font-bold transition cursor-pointer">
@@ -464,18 +459,20 @@
         </div>
     </div>
 
-    <!-- 2. お知らせ追加モーダル -->
+    <!-- 2. お知らせ追加・編集モーダル -->
     <div id="news-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="bg-pachi-card border border-pachi-pink/50 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
             <button onclick="closeModal('news-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            <h3 class="font-display text-xl text-white mb-4"><i class="fa-solid fa-bullhorn text-pachi-pink mr-2"></i>お知らせを追加</h3>
-            <form onsubmit="handleAddNews(event)" class="space-y-4">
+            <h3 id="news-modal-title" class="font-display text-xl text-white mb-4"><i class="fa-solid fa-bullhorn text-pachi-pink mr-2"></i>お知らせを追加</h3>
+            <form onsubmit="handleSaveNews(event)" class="space-y-4">
+                <input type="hidden" id="news-edit-id" value="">
                 <div>
                     <label class="block text-xs font-bold text-gray-300 mb-1">ラベル（種類）</label>
                     <select id="news-tag" class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-2.5 text-white">
                         <option value="新弾情報">新弾情報</option>
+                        <option value="カード情報">カード情報</option>
                         <option value="大会・イベント">大会・イベント</option>
                         <option value="ルール改定">ルール改定</option>
                         <option value="お知らせ">お知らせ</option>
@@ -491,7 +488,7 @@
                     <textarea id="news-body" rows="3" required placeholder="お知らせの本文を入力..." 
                         class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-2.5 text-white"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-pachi-pink hover:bg-pink-600 text-white font-bold py-3 rounded-xl transition cursor-pointer">
+                <button type="submit" id="news-submit-btn" class="w-full bg-pachi-pink hover:bg-pink-600 text-white font-bold py-3 rounded-xl transition cursor-pointer">
                     公開する
                 </button>
             </form>
@@ -525,70 +522,59 @@
         </div>
     </div>
 
-    <!-- 4. 新カード追加モーダル -->
+    <!-- 4. カード追加・編集モーダル -->
     <div id="card-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="bg-pachi-card border border-pachi-gold/50 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeModal('card-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            <h3 class="font-display text-xl text-white mb-4"><i class="fa-solid fa-sparkles text-pachi-gold mr-2"></i>新しいパチモンカードを追加</h3>
-            <form onsubmit="handleAddCard(event)" class="space-y-4">
+            <h3 id="card-modal-title" class="font-display text-xl text-white mb-4"><i class="fa-solid fa-sparkles text-pachi-gold mr-2"></i>新しいパチモンカードを追加</h3>
+            <form onsubmit="handleSaveCard(event)" class="space-y-4">
+                <input type="hidden" id="card-edit-id" value="">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">カード名</label>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">キャラクター名</label>
                         <input type="text" id="card-name" required placeholder="例：田中ドラゴン" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">レアリティ</label>
-                        <select id="card-rarity" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
-                            <option value="SSR">SSR (超激レア・ホログラム)</option>
-                            <option value="SR">SR (激レア)</option>
-                            <option value="R">R (レア)</option>
-                            <option value="N">N (ノーマル)</option>
-                        </select>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">右上の強さ（数字）</label>
+                        <input type="number" id="card-power" required value="1500" step="100" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
                     </div>
                 </div>
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">種族・属性</label>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">タイプ</label>
                         <input type="text" id="card-type" required placeholder="例：炎・竜族" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">攻撃力 (ATK)</label>
-                        <input type="number" id="card-atk" required value="1500" step="100" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">防御力 (DEF)</label>
-                        <input type="number" id="card-def" required value="1200" step="100" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
+                        <label class="block text-xs font-bold text-gray-300 mb-1">アイコン絵文字</label>
+                        <input type="text" id="card-emoji" required value="🐉" placeholder="例：🦖, 🔥, 🤖, 👻" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-300 mb-1">アイコン絵文字（イラスト代わり）</label>
-                    <input type="text" id="card-emoji" required value="🐉" placeholder="例：🦖, 🔥, 🤖, 👻" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
+                    <label class="block text-xs font-bold text-gray-300 mb-1">説明文（能力・解説）</label>
+                    <textarea id="card-desc" rows="3" required placeholder="カードの効果や説明文を入力..." class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white text-sm"></textarea>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-300 mb-1">特殊効果・スキル</label>
-                    <input type="text" id="card-skill" required placeholder="例：【突撃】このターン攻撃力+500" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="card-holo" class="w-4 h-4 accent-pachi-gold">
+                    <label for="card-holo" class="text-xs font-bold text-yellow-300">キラキラ光る特別枠（ホログラム）にする</label>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-300 mb-1">フレーバーテキスト（説明文）</label>
-                    <textarea id="card-flavor" rows="2" required placeholder="カードの世界観や一言コメント..." class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white text-sm"></textarea>
-                </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-pachi-gold to-amber-500 text-pachi-dark font-black py-3 rounded-xl transition cursor-pointer">
+                <button type="submit" id="card-submit-btn" class="w-full bg-gradient-to-r from-pachi-gold to-amber-500 text-pachi-dark font-black py-3 rounded-xl transition cursor-pointer">
                     図鑑に登録する
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- 5. 記事投稿モーダル -->
+    <!-- 5. 記事投稿・編集モーダル -->
     <div id="article-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="bg-pachi-card border border-pachi-pink/50 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
             <button onclick="closeModal('article-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            <h3 class="font-display text-xl text-white mb-4"><i class="fa-solid fa-pen-nib text-pachi-pink mr-2"></i>新しい記事を書く</h3>
-            <form onsubmit="handleAddArticle(event)" class="space-y-4">
+            <h3 id="article-modal-title" class="font-display text-xl text-white mb-4"><i class="fa-solid fa-pen-nib text-pachi-pink mr-2"></i>新しい記事を書く</h3>
+            <form onsubmit="handleSaveArticle(event)" class="space-y-4">
+                <input type="hidden" id="article-edit-id" value="">
                 <div>
                     <label class="block text-xs font-bold text-gray-300 mb-1">記事タイトル</label>
                     <input type="text" id="article-title" required placeholder="例：永田ザウルス誕生秘話！" class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-2.5 text-white">
@@ -601,7 +587,7 @@
                     <label class="block text-xs font-bold text-gray-300 mb-1">記事本文</label>
                     <textarea id="article-content" rows="5" required placeholder="開発の裏話や最強デッキ紹介などを書こう！" class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-2.5 text-white"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-pachi-pink hover:bg-pink-600 text-white font-bold py-3 rounded-xl transition cursor-pointer">
+                <button type="submit" id="article-submit-btn" class="w-full bg-pachi-pink hover:bg-pink-600 text-white font-bold py-3 rounded-xl transition cursor-pointer">
                     記事を公開する
                 </button>
             </form>
@@ -614,7 +600,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // あなたの Firebase プロジェクト設定 (pachimoncard)
         const USER_FIREBASE_CONFIG = {
@@ -640,60 +626,51 @@
                     id: 'news-2',
                     date: '2026.11.12',
                     tag: 'カード情報',
-                    title: '最高レアリティSSR「永田ザウルス」の能力公開！',
-                    body: '攻撃力3500の圧倒的パワーを持つ覇王「永田ザウルス」が第1弾の目玉SSRとして登場！'
+                    title: '最強クラス「永田ザウルス」の能力公開！',
+                    body: '右上の数字9999の圧倒的パワーを持つ覇王「永田ザウルス」が第1弾の目玉として登場！'
                 }
             ],
             howto: {
                 step1: '【デッキの準備】お気に入りのパチモンカードを20枚集めて自分のデッキを作ろう！（同じカードはデッキに2枚まで入れられるぞ）',
-                step2: '【バトルの流れ】じゃんけんで先攻・後攻を決め、手札を5枚引いてスタート！自分のターンにカードを1枚ドローし、手札からパチモンを場に召喚して相手モンスターやプレイヤーに攻撃しよう！',
-                step3: '【勝利条件】相手のライフポイント（初期値5000）を0にしたプレイヤーの勝利！SSR「永田ザウルス」などの切り札をどのタイミングで召喚するかが勝負の分かれ目だ！'
+                step2: '【バトルの流れ】じゃんけんで先攻・後攻を決め、手札を5枚引いてスタート！自分のターンにカードを1枚ドローし、手札からパチモンを場に召喚してバトルしよう！',
+                step3: '【勝利条件】右上の強さの数字や特殊効果を駆使して相手を倒そう！「永田ザウルス」などの切り札をどのタイミングで召喚するかが勝負の分かれ目だ！'
             },
             cards: [
                 {
                     id: 'card-nagata',
                     name: '永田ザウルス',
-                    rarity: 'SSR',
                     type: '恐竜・覇王属',
-                    atk: 3500,
-                    def: 3000,
+                    power: 9999,
                     emoji: '🦖',
-                    isFeaturedSvg: true,
-                    skill: '【特殊効果】覇王の咆哮：召喚時、相手の場のカードを1枚吹き飛ばす！',
-                    flavor: '「チャイムが鳴るその瞬間まで、奴の進撃を止められる者は誰もいない…！」'
+                    isHolo: true,
+                    desc: '【覇王の咆哮】召喚時、相手の場のカードを1枚吹き飛ばす！チャイムが鳴るその瞬間まで、奴の進撃を止められる者は誰もいない…！'
                 },
                 {
                     id: 'card-2',
                     name: '黒板消しゴーレム',
-                    rarity: 'SR',
                     type: '岩石・文具族',
-                    atk: 2400,
-                    def: 2800,
+                    power: 2400,
                     emoji: '🧱',
-                    skill: '【チョークの粉塵】相手モンスター1体の攻撃力を1ターン500下げる。',
-                    flavor: '日直がパンパン叩くたびに巨大化すると噂される教室の守護神。'
+                    isHolo: false,
+                    desc: '【チョークの粉塵】相手モンスター1体の強さを1ターン500下げる。日直がパンパン叩くたびに巨大化すると噂される教室の守護神。'
                 },
                 {
                     id: 'card-3',
                     name: '給食プリン・スライム',
-                    rarity: 'R',
                     type: '甘味・水棲族',
-                    atk: 1400,
-                    def: 1600,
+                    power: 1400,
                     emoji: '🍮',
-                    skill: '【おかわりじゃんけん】破壊された時、デッキから1枚カードを引く。',
-                    flavor: '休み時間のじゃんけん大会で最も争奪戦になる幻のデザート。'
+                    isHolo: false,
+                    desc: '【おかわりじゃんけん】破壊された時、デッキから1枚カードを引く。休み時間のじゃんけん大会で最も争奪戦になる幻のデザート。'
                 },
                 {
                     id: 'card-4',
                     name: '転がり鉛筆コロリン',
-                    rarity: 'N',
                     type: '木霊・文具族',
-                    atk: 800,
-                    def: 600,
+                    power: 800,
                     emoji: '✏️',
-                    skill: '【テスト転がし】コイントスで表が出たら攻撃力が2倍になる！',
-                    flavor: '机の端から落ちた瞬間、異次元へと消えて二度と見つからない。'
+                    isHolo: false,
+                    desc: '【テスト転がし】コイントスで表が出たら強さが2倍になる！机の端から落ちた瞬間、異次元へと消えて二度と見つからない。'
                 }
             ],
             articles: [
@@ -701,8 +678,8 @@
                     id: 'art-1',
                     date: '2026.11.13',
                     author: 'パチモン制作者',
-                    title: '【開発秘話】伝説のSSR「永田ザウルス」はどうやって生まれたのか？',
-                    content: 'パチモンカード第1弾を作るにあたって、「とにかく一番強くてカッコいい切り札が欲しい！」という思いから誕生したのが永田ザウルスです。攻撃力3500は現環境トップクラス！ぜひデッキのエースとして使ってみてください！'
+                    title: '【開発秘話】伝説の「永田ザウルス」はどうやって生まれたのか？',
+                    content: 'パチモンカード第1弾を作るにあたって、「とにかく一番強くてカッコいい切り札が欲しい！」という思いから誕生したのが永田ザウルスです。右上の数字は圧巻の9999！ぜひデッキのエースとして使ってみてください！'
                 }
             ]
         };
@@ -795,7 +772,7 @@
             state.useFirebase = false;
             updateStorageBadge();
             try {
-                const saved = localStorage.getItem('pachimon_card_data_v1');
+                const saved = localStorage.getItem('pachimon_card_data_v2');
                 if (saved) {
                     const parsed = JSON.parse(saved);
                     state.news = parsed.news || DEFAULT_DATA.news;
@@ -820,7 +797,7 @@
 
         function saveLocalData() {
             try {
-                localStorage.setItem('pachimon_card_data_v1', JSON.stringify({
+                localStorage.setItem('pachimon_card_data_v2', JSON.stringify({
                     news: state.news,
                     howto: state.howto,
                     cards: state.cards,
@@ -886,6 +863,7 @@
                     }
                     state.cards = fetched;
                 }
+                updateHeroFeaturedCard();
                 renderCards();
             }, handleFirestoreError);
 
@@ -905,38 +883,102 @@
         // 画面描画 (レンダリング) 関数群
         // ==========================================
         function renderAll() {
+            updateHeroFeaturedCard();
             renderNews();
             renderHowto();
             renderCards();
             renderArticles();
         }
 
-        function renderNews() {
+        // トップの永田ザウルス展示も最新データに同期
+        function updateHeroFeaturedCard() {
+            const nagata = state.cards.find(c => c.name === '永田ザウルス');
+            const heroEl = document.getElementById('hero-featured-card');
+            if (!nagata || !heroEl) return;
+            const powerVal = nagata.power !== undefined ? nagata.power : (nagata.atk || 9999);
+            const descVal = nagata.desc || nagata.skill || '';
+            heroEl.innerHTML = `
+                <div class="flex justify-between items-center mb-2">
+                    <span class="bg-black/60 border border-pachi-gold/50 text-yellow-200 font-bold px-2.5 py-0.5 rounded-lg text-xs">
+                        ${escapeHTML(nagata.type)}
+                    </span>
+                    <div class="bg-gradient-to-r from-yellow-300 via-pachi-gold to-amber-500 text-black font-display px-3 py-0.5 rounded-lg text-base shadow">
+                        ${escapeHTML(String(powerVal))}
+                    </div>
+                </div>
+                <div class="relative w-full h-48 rounded-xl bg-gradient-to-b from-indigo-900 via-purple-900 to-black border-2 border-pachi-gold/70 overflow-hidden flex items-center justify-center mb-3 shadow-inner">
+                    <svg viewBox="0 0 200 160" class="w-44 h-44 drop-shadow-[0_0_12px_rgba(255,215,0,0.8)]">
+                        <defs>
+                            <linearGradient id="dinoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#ffd700" />
+                                <stop offset="50%" stop-color="#ff2a85" />
+                                <stop offset="100%" stop-color="#66fcf1" />
+                            </linearGradient>
+                        </defs>
+                        <path d="M30 20 L55 55 L40 60 L65 100" stroke="#66fcf1" stroke-width="3" fill="none" opacity="0.8"/>
+                        <path d="M170 25 L145 60 L160 65 L135 105" stroke="#ffd700" stroke-width="3" fill="none" opacity="0.8"/>
+                        <path d="M55 135 L65 105 L45 95 L60 80 L75 85 L90 50 L85 35 L115 25 L145 35 L140 50 L118 52 L115 62 L135 65 L130 75 L110 73 L105 95 L125 135 L108 135 L95 108 L80 135 Z" fill="url(#dinoGrad)" stroke="#ffffff" stroke-width="2"/>
+                        <circle cx="122" cy="37" r="4" fill="#ffffff"/>
+                        <circle cx="123" cy="37" r="2" fill="#ff0000"/>
+                        <polygon points="88,52 76,48 85,62" fill="#ffd700"/>
+                        <polygon points="82,66 68,64 78,76" fill="#ffd700"/>
+                        <polygon points="75,80 62,80 72,90" fill="#ffd700"/>
+                    </svg>
+                    <div class="absolute bottom-1 right-2 text-[10px] text-yellow-200/80 font-bold">ILLUST: 開発者</div>
+                </div>
+                <div class="text-center mb-3">
+                    <h2 class="font-display text-2xl text-white tracking-wider neon-text-gold">${escapeHTML(nagata.name)}</h2>
+                </div>
+                <div class="bg-black/70 rounded-xl p-3 border border-pachi-gold/40 text-xs space-y-1.5">
+                    <p class="text-yellow-100 leading-relaxed whitespace-pre-line">${escapeHTML(descVal)}</p>
+                </div>
+            `;
+        }
+
+        window.renderNews = function() {
             const container = document.getElementById('news-list');
-            if (state.news.length === 0) {
-                container.innerHTML = `<p class="text-gray-400 text-sm py-4">現在お知らせはありません。</p>`;
+            const filterSelect = document.getElementById('news-tag-filter');
+            const countBadge = document.getElementById('news-count-badge');
+            const selectedTag = filterSelect ? filterSelect.value : 'ALL';
+
+            const filteredNews = selectedTag === 'ALL'
+                ? state.news
+                : state.news.filter(item => item.tag === selectedTag);
+
+            if (countBadge) {
+                countBadge.textContent = `${filteredNews.length}件`;
+            }
+
+            if (filteredNews.length === 0) {
+                container.innerHTML = `<p class="text-gray-400 text-sm py-6 text-center bg-pachi-card/40 rounded-2xl border border-white/5">該当するお知らせはありません。</p>`;
                 return;
             }
-            container.innerHTML = state.news.map(item => `
+            container.innerHTML = filteredNews.map((item, index) => `
                 <div class="bg-pachi-card/70 border border-white/10 hover:border-pachi-cyan/40 rounded-2xl p-4 sm:p-5 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div class="space-y-1">
-                        <div class="flex items-center gap-2 text-xs">
+                    <div class="space-y-1.5">
+                        <div class="flex flex-wrap items-center gap-2 text-xs">
+                            ${index === 0 && selectedTag === 'ALL' ? `<span class="bg-pachi-cyan text-pachi-dark font-black px-2 py-0.5 rounded text-[10px] tracking-wider">NEW</span>` : ''}
                             <span class="text-gray-400 font-mono">${escapeHTML(item.date)}</span>
                             <span class="bg-pachi-pink/20 text-pachi-pink border border-pachi-pink/40 px-2.5 py-0.5 rounded-full font-bold">
                                 ${escapeHTML(item.tag)}
                             </span>
                         </div>
                         <h3 class="font-bold text-base sm:text-lg text-white">${escapeHTML(item.title)}</h3>
-                        <p class="text-gray-300 text-sm leading-relaxed">${escapeHTML(item.body)}</p>
+                        <p class="text-gray-300 text-sm leading-relaxed whitespace-pre-line">${escapeHTML(item.body)}</p>
                     </div>
                     ${state.isAdmin ? `
-                        <button onclick="deleteNews('${item.id}')" class="self-end sm:self-center text-rose-400 hover:text-rose-300 bg-rose-950/50 hover:bg-rose-900/60 px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer">
-                            <i class="fa-solid fa-trash mr-1"></i>削除
-                        </button>
+                        <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+                            <button onclick="openNewsModal('${item.id}')" class="text-pachi-cyan hover:text-white bg-pachi-cyan/10 hover:bg-pachi-cyan/30 border border-pachi-cyan/40 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">
+                                <i class="fa-solid fa-pen mr-1"></i>編集
+                            </button>
+                            <button onclick="deleteNews('${item.id}')" class="text-rose-400 hover:text-rose-300 bg-rose-950/50 hover:bg-rose-900/60 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">
+                                <i class="fa-solid fa-trash mr-1"></i>削除
+                            </button>
+                        </div>
                     ` : ''}
                 </div>
             `).join('');
-        }
+        };
 
         function renderHowto() {
             const container = document.getElementById('howto-content');
@@ -961,37 +1003,44 @@
 
         window.renderCards = function() {
             const container = document.getElementById('cards-grid');
-            const filter = document.getElementById('rarity-filter').value;
-            const filtered = filter === 'ALL' ? state.cards : state.cards.filter(c => c.rarity === filter);
+            const filterSelect = document.getElementById('type-filter');
+            
+            // タイプフィルターの選択肢を現在のカード一覧から自動生成
+            if (filterSelect) {
+                const currentVal = filterSelect.value;
+                const types = [...new Set(state.cards.map(c => c.type).filter(Boolean))];
+                filterSelect.innerHTML = `<option value="ALL">すべてのタイプ</option>` + 
+                    types.map(t => `<option value="${escapeHTML(t)}" ${t === currentVal ? 'selected' : ''}>${escapeHTML(t)}</option>`).join('');
+            }
+
+            const filter = filterSelect ? filterSelect.value : 'ALL';
+            const filtered = filter === 'ALL' ? state.cards : state.cards.filter(c => c.type === filter);
 
             if (filtered.length === 0) {
-                container.innerHTML = `<p class="col-span-full text-center text-gray-400 py-10">該当するレアリティのカードはまだ登録されていません。</p>`;
+                container.innerHTML = `<p class="col-span-full text-center text-gray-400 py-10">該当するタイプのカードはまだ登録されていません。</p>`;
                 return;
             }
 
             container.innerHTML = filtered.map(card => {
-                const rarityClass = {
-                    'SSR': 'card-ssr',
-                    'SR': 'card-sr',
-                    'R': 'card-r',
-                    'N': 'card-n'
-                }[card.rarity] || 'card-n';
-
-                const badgeStyle = {
-                    'SSR': 'bg-gradient-to-r from-yellow-300 via-pachi-gold to-amber-500 text-black',
-                    'SR': 'bg-purple-500 text-white',
-                    'R': 'bg-sky-500 text-white',
-                    'N': 'bg-gray-600 text-white'
-                }[card.rarity] || 'bg-gray-600 text-white';
+                const isHolo = card.isHolo || card.rarity === 'SSR';
+                const cardFrameClass = isHolo ? 'card-ssr' : 'card-r';
+                const powerBadgeClass = isHolo 
+                    ? 'bg-gradient-to-r from-yellow-300 via-pachi-gold to-amber-500 text-black' 
+                    : 'bg-pachi-cyan text-pachi-dark';
+                const powerVal = card.power !== undefined ? card.power : (card.atk || 1000);
+                const descVal = card.desc || [card.skill, card.flavor].filter(Boolean).join('\n');
 
                 return `
-                    <div class="tcg-card ${rarityClass} p-4 flex flex-col justify-between">
+                    <div class="tcg-card ${cardFrameClass} p-4 flex flex-col justify-between">
                         <div>
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="${badgeStyle} font-display px-2.5 py-0.5 rounded-lg text-xs shadow">
-                                    ${card.rarity === 'SSR' ? '★ SSR' : card.rarity}
+                            <!-- 上部：タイプと右上の強さの数字のみ -->
+                            <div class="flex justify-between items-center mb-2 gap-2">
+                                <span class="bg-black/60 border border-white/20 text-gray-200 font-bold px-2.5 py-0.5 rounded-lg text-[11px] truncate">
+                                    ${escapeHTML(card.type)}
                                 </span>
-                                <span class="text-[11px] font-bold text-gray-200">${escapeHTML(card.type)}</span>
+                                <span class="${powerBadgeClass} font-display px-3 py-0.5 rounded-lg text-sm shadow shrink-0">
+                                    ${escapeHTML(String(powerVal))}
+                                </span>
                             </div>
 
                             <!-- イラストエリア -->
@@ -999,32 +1048,28 @@
                                 <span class="text-6xl drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]">${escapeHTML(card.emoji || '👾')}</span>
                             </div>
 
-                            <h3 class="font-display text-lg text-white text-center mb-2 ${card.rarity === 'SSR' ? 'neon-text-gold' : ''}">
+                            <!-- キャラクター名 -->
+                            <h3 class="font-display text-lg text-white text-center mb-3 ${isHolo ? 'neon-text-gold' : ''}">
                                 ${escapeHTML(card.name)}
                             </h3>
 
-                            <!-- ATK / DEF -->
-                            <div class="grid grid-cols-2 gap-2 mb-3">
-                                <div class="bg-black/60 border border-red-500/40 rounded-lg py-1 text-center">
-                                    <span class="text-[9px] text-red-400 block font-bold">ATK</span>
-                                    <span class="font-display text-sm text-white">${escapeHTML(String(card.atk))}</span>
-                                </div>
-                                <div class="bg-black/60 border border-blue-500/40 rounded-lg py-1 text-center">
-                                    <span class="text-[9px] text-blue-400 block font-bold">DEF</span>
-                                    <span class="font-display text-sm text-white">${escapeHTML(String(card.def))}</span>
-                                </div>
-                            </div>
-
-                            <div class="bg-black/60 rounded-xl p-2.5 border border-white/10 text-xs space-y-1">
-                                <p class="text-pachi-cyan font-bold leading-snug">${escapeHTML(card.skill)}</p>
-                                <p class="text-gray-400 italic text-[11px] leading-snug">${escapeHTML(card.flavor)}</p>
+                            <!-- 説明文 -->
+                            <div class="bg-black/60 rounded-xl p-3 border border-white/10 text-xs">
+                                <p class="text-gray-200 leading-relaxed whitespace-pre-line">${escapeHTML(descVal)}</p>
                             </div>
                         </div>
 
-                        ${state.isAdmin && card.id !== 'card-nagata' ? `
-                            <button onclick="deleteCard('${card.id}')" class="mt-3 w-full bg-rose-950/80 hover:bg-rose-800 text-rose-200 py-1.5 rounded-lg text-xs font-bold transition relative z-20 cursor-pointer">
-                                <i class="fa-solid fa-trash mr-1"></i>このカードを削除
-                            </button>
+                        ${state.isAdmin ? `
+                            <div class="mt-3 flex gap-2 relative z-20">
+                                <button onclick="openCardModal('${card.id}')" class="flex-1 bg-pachi-cyan/20 hover:bg-pachi-cyan/40 border border-pachi-cyan/50 text-pachi-cyan hover:text-white py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">
+                                    <i class="fa-solid fa-pen mr-1"></i>編集
+                                </button>
+                                ${card.id !== 'card-nagata' ? `
+                                    <button onclick="deleteCard('${card.id}')" class="flex-1 bg-rose-950/80 hover:bg-rose-800 text-rose-200 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">
+                                        <i class="fa-solid fa-trash mr-1"></i>削除
+                                    </button>
+                                ` : ''}
+                            </div>
                         ` : ''}
                     </div>
                 `;
@@ -1048,7 +1093,10 @@
                         <p class="text-gray-300 text-sm leading-relaxed whitespace-pre-line">${escapeHTML(art.content)}</p>
                     </div>
                     ${state.isAdmin ? `
-                        <div class="pt-4 mt-4 border-t border-white/10 text-right">
+                        <div class="pt-4 mt-4 border-t border-white/10 flex justify-end gap-3">
+                            <button onclick="openArticleModal('${art.id}')" class="text-pachi-cyan hover:text-white text-xs font-bold cursor-pointer">
+                                <i class="fa-solid fa-pen mr-1"></i>文章を編集
+                            </button>
                             <button onclick="deleteArticle('${art.id}')" class="text-rose-400 hover:text-rose-300 text-xs font-bold cursor-pointer">
                                 <i class="fa-solid fa-trash mr-1"></i>記事を削除
                             </button>
@@ -1092,80 +1140,128 @@
 
         function updateAdminUI() {
             const banner = document.getElementById('admin-banner');
+            const adminElements = document.querySelectorAll('.admin-only');
             const headerLoginBtn = document.getElementById('header-login-btn');
-            const adminButtons = document.querySelectorAll('.admin-only');
+            const footerLoginBtn = document.getElementById('footer-login-btn');
 
             if (state.isAdmin) {
                 banner.classList.remove('hidden');
-                headerLoginBtn.innerHTML = '<i class="fa-solid fa-check mr-1"></i>管理者ログイン中';
-                headerLoginBtn.classList.add('bg-pachi-pink', 'text-white', 'border-pachi-pink');
-                adminButtons.forEach(btn => btn.classList.remove('hidden'));
+                adminElements.forEach(el => el.classList.remove('hidden'));
+                if (headerLoginBtn) headerLoginBtn.classList.add('hidden');
+                if (footerLoginBtn) footerLoginBtn.classList.add('hidden');
             } else {
                 banner.classList.add('hidden');
-                headerLoginBtn.innerHTML = '<i class="fa-solid fa-lock mr-1"></i>管理者としてログイン';
-                headerLoginBtn.classList.remove('bg-pachi-pink', 'text-white', 'border-pachi-pink');
-                adminButtons.forEach(btn => btn.classList.add('hidden'));
+                adminElements.forEach(el => el.classList.add('hidden'));
+                if (headerLoginBtn) headerLoginBtn.classList.remove('hidden');
+                if (footerLoginBtn) footerLoginBtn.classList.remove('hidden');
             }
             renderAll();
         }
 
         window.openModal = function(id) {
-            const el = document.getElementById(id);
-            el.classList.remove('hidden');
-            el.classList.add('flex');
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
         };
 
         window.closeModal = function(id) {
-            const el = document.getElementById(id);
-            el.classList.add('hidden');
-            el.classList.remove('flex');
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
         };
 
         window.toggleMobileMenu = function() {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
+            const menu = document.getElementById('mobile-menu');
+            if (menu) menu.classList.toggle('hidden');
         };
 
-        // ==========================================
-        // データ追加・編集・削除アクション (CRUD)
-        // ==========================================
         function getTodayStr() {
             const d = new Date();
-            return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}.${m}.${day}`;
         }
 
-        // 1. お知らせ追加・削除
-        window.openNewsModal = function() {
-            document.getElementById('news-title').value = '';
-            document.getElementById('news-body').value = '';
+        // 1. お知らせ追加・編集・削除
+        window.openNewsModal = function(editId = '') {
+            const modalTitle = document.getElementById('news-modal-title');
+            const submitBtn = document.getElementById('news-submit-btn');
+            document.getElementById('news-edit-id').value = editId;
+
+            if (editId) {
+                const target = state.news.find(n => n.id === editId);
+                if (target) {
+                    modalTitle.innerHTML = '<i class="fa-solid fa-pen text-pachi-pink mr-2"></i>お知らせを編集';
+                    submitBtn.textContent = '変更を保存する';
+                    document.getElementById('news-tag').value = target.tag;
+                    document.getElementById('news-title').value = target.title;
+                    document.getElementById('news-body').value = target.body;
+                }
+            } else {
+                modalTitle.innerHTML = '<i class="fa-solid fa-bullhorn text-pachi-pink mr-2"></i>お知らせを追加';
+                submitBtn.textContent = '公開する';
+                document.getElementById('news-title').value = '';
+                document.getElementById('news-body').value = '';
+            }
             openModal('news-modal');
         };
 
-        window.handleAddNews = async function(e) {
+        window.handleSaveNews = async function(e) {
             e.preventDefault();
-            const newItem = {
-                date: getTodayStr(),
+            const editId = document.getElementById('news-edit-id').value;
+            const payload = {
                 tag: document.getElementById('news-tag').value,
                 title: document.getElementById('news-title').value,
-                body: document.getElementById('news-body').value,
-                createdAt: Date.now()
+                body: document.getElementById('news-body').value
             };
 
-            if (state.useFirebase) {
-                try {
-                    await addDoc(collection(state.db, 'artifacts', state.appId, 'public', 'data', 'news'), newItem);
-                } catch (err) {
-                    showToast('クラウド保存に失敗しました（ローカルに保存します）', 'error');
+            if (editId) {
+                // 既存のお知らせを更新
+                if (state.useFirebase && !editId.startsWith('news-')) {
+                    try {
+                        await updateDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'news', editId), payload);
+                    } catch (err) {
+                        const idx = state.news.findIndex(n => n.id === editId);
+                        if (idx !== -1) state.news[idx] = { ...state.news[idx], ...payload };
+                        saveLocalData();
+                        renderNews();
+                    }
+                } else {
+                    const idx = state.news.findIndex(n => n.id === editId);
+                    if (idx !== -1) state.news[idx] = { ...state.news[idx], ...payload };
+                    saveLocalData();
+                    renderNews();
+                }
+                closeModal('news-modal');
+                showToast('お知らせを更新しました！', 'success');
+            } else {
+                // 新規追加
+                const newItem = {
+                    date: getTodayStr(),
+                    ...payload,
+                    createdAt: Date.now()
+                };
+                if (state.useFirebase) {
+                    try {
+                        await addDoc(collection(state.db, 'artifacts', state.appId, 'public', 'data', 'news'), newItem);
+                    } catch (err) {
+                        state.news.unshift({ id: 'news-' + Date.now(), ...newItem });
+                        saveLocalData();
+                        renderNews();
+                    }
+                } else {
                     state.news.unshift({ id: 'news-' + Date.now(), ...newItem });
                     saveLocalData();
                     renderNews();
                 }
-            } else {
-                state.news.unshift({ id: 'news-' + Date.now(), ...newItem });
-                saveLocalData();
-                renderNews();
+                closeModal('news-modal');
+                showToast('新しいお知らせを公開しました！', 'success');
             }
-            closeModal('news-modal');
-            showToast('新しいお知らせを公開しました！', 'success');
         };
 
         window.deleteNews = async function(id) {
@@ -1185,9 +1281,9 @@
 
         // 2. 遊び方編集
         window.openHowtoModal = function() {
-            document.getElementById('howto-step1').value = state.howto.step1;
-            document.getElementById('howto-step2').value = state.howto.step2;
-            document.getElementById('howto-step3').value = state.howto.step3;
+            document.getElementById('howto-step1').value = state.howto.step1 || '';
+            document.getElementById('howto-step2').value = state.howto.step2 || '';
+            document.getElementById('howto-step3').value = state.howto.step3 || '';
             openModal('howto-modal');
         };
 
@@ -1198,7 +1294,6 @@
                 step2: document.getElementById('howto-step2').value,
                 step3: document.getElementById('howto-step3').value
             };
-
             if (state.useFirebase) {
                 try {
                     await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'settings', 'howto'), updatedHowto);
@@ -1213,47 +1308,106 @@
                 renderHowto();
             }
             closeModal('howto-modal');
-            showToast('遊び方ルールを更新しました！', 'success');
+            showToast('遊び方・ルールを更新しました！', 'success');
         };
 
-        // 3. カード追加・削除
-        window.openCardModal = function() {
-            document.getElementById('card-name').value = '';
-            document.getElementById('card-type').value = '';
-            document.getElementById('card-skill').value = '';
-            document.getElementById('card-flavor').value = '';
+        // 3. カード追加・編集・削除
+        window.openCardModal = function(editId = '') {
+            const modalTitle = document.getElementById('card-modal-title');
+            const submitBtn = document.getElementById('card-submit-btn');
+            document.getElementById('card-edit-id').value = editId;
+
+            if (editId) {
+                const target = state.cards.find(c => c.id === editId);
+                if (target) {
+                    modalTitle.innerHTML = '<i class="fa-solid fa-pen text-pachi-gold mr-2"></i>カード情報を編集';
+                    submitBtn.textContent = '変更を保存する';
+                    document.getElementById('card-name').value = target.name;
+                    document.getElementById('card-power').value = target.power !== undefined ? target.power : (target.atk || 1000);
+                    document.getElementById('card-type').value = target.type;
+                    document.getElementById('card-emoji').value = target.emoji || '👾';
+                    document.getElementById('card-desc').value = target.desc || [target.skill, target.flavor].filter(Boolean).join('\n');
+                    document.getElementById('card-holo').checked = Boolean(target.isHolo || target.rarity === 'SSR');
+                }
+            } else {
+                modalTitle.innerHTML = '<i class="fa-solid fa-sparkles text-pachi-gold mr-2"></i>新しいパチモンカードを追加';
+                submitBtn.textContent = '図鑑に登録する';
+                document.getElementById('card-name').value = '';
+                document.getElementById('card-power').value = 1500;
+                document.getElementById('card-type').value = '';
+                document.getElementById('card-emoji').value = '🐉';
+                document.getElementById('card-desc').value = '';
+                document.getElementById('card-holo').checked = false;
+            }
             openModal('card-modal');
         };
 
-        window.handleAddCard = async function(e) {
+        window.handleSaveCard = async function(e) {
             e.preventDefault();
-            const newCard = {
+            const editId = document.getElementById('card-edit-id').value;
+            const payload = {
                 name: document.getElementById('card-name').value,
-                rarity: document.getElementById('card-rarity').value,
+                power: Number(document.getElementById('card-power').value),
                 type: document.getElementById('card-type').value,
-                atk: Number(document.getElementById('card-atk').value),
-                def: Number(document.getElementById('card-def').value),
                 emoji: document.getElementById('card-emoji').value || '👾',
-                skill: document.getElementById('card-skill').value,
-                flavor: document.getElementById('card-flavor').value,
-                createdAt: Date.now()
+                desc: document.getElementById('card-desc').value,
+                isHolo: document.getElementById('card-holo').checked
             };
 
-            if (state.useFirebase) {
-                try {
-                    await addDoc(collection(state.db, 'artifacts', state.appId, 'public', 'data', 'cards'), newCard);
-                } catch (err) {
+            if (editId) {
+                // 既存カードの編集
+                if (state.useFirebase && !editId.startsWith('card-')) {
+                    try {
+                        await updateDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'cards', editId), payload);
+                    } catch (err) {
+                        const idx = state.cards.findIndex(c => c.id === editId);
+                        if (idx !== -1) state.cards[idx] = { ...state.cards[idx], ...payload };
+                        saveLocalData();
+                        updateHeroFeaturedCard();
+                        renderCards();
+                    }
+                } else if (state.useFirebase && editId === 'card-nagata') {
+                    // 初期サンプルの永田ザウルスを編集した場合はFirestoreにも新規保存
+                    try {
+                        await addDoc(collection(state.db, 'artifacts', state.appId, 'public', 'data', 'cards'), { ...payload, createdAt: Date.now() });
+                    } catch (err) {
+                        const idx = state.cards.findIndex(c => c.id === editId);
+                        if (idx !== -1) state.cards[idx] = { ...state.cards[idx], ...payload };
+                        saveLocalData();
+                        updateHeroFeaturedCard();
+                        renderCards();
+                    }
+                } else {
+                    const idx = state.cards.findIndex(c => c.id === editId);
+                    if (idx !== -1) state.cards[idx] = { ...state.cards[idx], ...payload };
+                    saveLocalData();
+                    updateHeroFeaturedCard();
+                    renderCards();
+                }
+                closeModal('card-modal');
+                showToast(`「${payload.name}」の情報を更新しました！`, 'success');
+            } else {
+                // 新規追加
+                const newCard = {
+                    ...payload,
+                    createdAt: Date.now()
+                };
+                if (state.useFirebase) {
+                    try {
+                        await addDoc(collection(state.db, 'artifacts', state.appId, 'public', 'data', 'cards'), newCard);
+                    } catch (err) {
+                        state.cards.push({ id: 'card-' + Date.now(), ...newCard });
+                        saveLocalData();
+                        renderCards();
+                    }
+                } else {
                     state.cards.push({ id: 'card-' + Date.now(), ...newCard });
                     saveLocalData();
                     renderCards();
                 }
-            } else {
-                state.cards.push({ id: 'card-' + Date.now(), ...newCard });
-                saveLocalData();
-                renderCards();
+                closeModal('card-modal');
+                showToast(`新カード「${newCard.name}」を図鑑に登録しました！`, 'success');
             }
-            closeModal('card-modal');
-            showToast(`新カード「${newCard.name}」を図鑑に登録しました！`, 'success');
         };
 
         window.deleteCard = async function(id) {
@@ -1271,38 +1425,82 @@
             showToast('カードを図鑑から削除しました', 'info');
         };
 
-        // 4. 記事投稿・削除
-        window.openArticleModal = function() {
-            document.getElementById('article-title').value = '';
-            document.getElementById('article-content').value = '';
+        // 4. 記事投稿・編集・削除
+        window.openArticleModal = function(editId = '') {
+            const modalTitle = document.getElementById('article-modal-title');
+            const submitBtn = document.getElementById('article-submit-btn');
+            document.getElementById('article-edit-id').value = editId;
+
+            if (editId) {
+                const target = state.articles.find(a => a.id === editId);
+                if (target) {
+                    modalTitle.innerHTML = '<i class="fa-solid fa-pen text-pachi-pink mr-2"></i>記事を編集する';
+                    submitBtn.textContent = '変更を保存する';
+                    document.getElementById('article-title').value = target.title;
+                    document.getElementById('article-author').value = target.author;
+                    document.getElementById('article-content').value = target.content;
+                }
+            } else {
+                modalTitle.innerHTML = '<i class="fa-solid fa-pen-nib text-pachi-pink mr-2"></i>新しい記事を書く';
+                submitBtn.textContent = '記事を公開する';
+                document.getElementById('article-title').value = '';
+                document.getElementById('article-author').value = 'パチモン制作者';
+                document.getElementById('article-content').value = '';
+            }
             openModal('article-modal');
         };
 
-        window.handleAddArticle = async function(e) {
+        window.handleSaveArticle = async function(e) {
             e.preventDefault();
-            const newArticle = {
-                date: getTodayStr(),
+            const editId = document.getElementById('article-edit-id').value;
+            const payload = {
                 title: document.getElementById('article-title').value,
                 author: document.getElementById('article-author').value,
-                content: document.getElementById('article-content').value,
-                createdAt: Date.now()
+                content: document.getElementById('article-content').value
             };
 
-            if (state.useFirebase) {
-                try {
-                    await addDoc(collection(state.db, 'artifacts', state.appId, 'public', 'data', 'articles'), newArticle);
-                } catch (err) {
+            if (editId) {
+                // 既存記事の更新
+                if (state.useFirebase && !editId.startsWith('art-')) {
+                    try {
+                        await updateDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'articles', editId), payload);
+                    } catch (err) {
+                        const idx = state.articles.findIndex(a => a.id === editId);
+                        if (idx !== -1) state.articles[idx] = { ...state.articles[idx], ...payload };
+                        saveLocalData();
+                        renderArticles();
+                    }
+                } else {
+                    const idx = state.articles.findIndex(a => a.id === editId);
+                    if (idx !== -1) state.articles[idx] = { ...state.articles[idx], ...payload };
+                    saveLocalData();
+                    renderArticles();
+                }
+                closeModal('article-modal');
+                showToast('記事の内容を更新しました！', 'success');
+            } else {
+                // 新規投稿
+                const newArticle = {
+                    date: getTodayStr(),
+                    ...payload,
+                    createdAt: Date.now()
+                };
+                if (state.useFirebase) {
+                    try {
+                        await addDoc(collection(state.db, 'artifacts', state.appId, 'public', 'data', 'articles'), newArticle);
+                    } catch (err) {
+                        state.articles.unshift({ id: 'art-' + Date.now(), ...newArticle });
+                        saveLocalData();
+                        renderArticles();
+                    }
+                } else {
                     state.articles.unshift({ id: 'art-' + Date.now(), ...newArticle });
                     saveLocalData();
                     renderArticles();
                 }
-            } else {
-                state.articles.unshift({ id: 'art-' + Date.now(), ...newArticle });
-                saveLocalData();
-                renderArticles();
+                closeModal('article-modal');
+                showToast('新しい記事を公開しました！', 'success');
             }
-            closeModal('article-modal');
-            showToast('新しい記事を公開しました！', 'success');
         };
 
         window.deleteArticle = async function(id) {
