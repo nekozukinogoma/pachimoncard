@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>パチモンカード公式サイト | 教室発！究極のオリジナルカードゲーム</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Dela Gothic One & Noto Sans JP -->
+    <!-- Google Fonts: Dela Gothic One & Noto Sans JP & Orbitron -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@400;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     <!-- Font Awesome (アイコン用) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -20,15 +20,17 @@
                     fontFamily: {
                         sans: ['"Noto Sans JP"', 'sans-serif'],
                         display: ['"Dela Gothic One"', 'cursive'],
+                        cyber: ['"Orbitron"', 'sans-serif'],
                     },
                     colors: {
                         pachi: {
-                            dark: '#0b0c10',
-                            card: '#1f2833',
-                            cyan: '#66fcf1',
-                            teal: '#45a29e',
+                            dark: '#06070a',
+                            card: '#131822',
+                            cyan: '#00f5d4',
+                            teal: '#00bbf9',
                             gold: '#ffd700',
-                            pink: '#ff2a85',
+                            pink: '#ff007f',
+                            purple: '#9b5de5',
                         }
                     }
                 }
@@ -37,41 +39,161 @@
     </script>
 
     <style>
-        /* カスタムスタイル & SSRホログラムアニメーション */
+        /* ==========================================
+           ベース背景 & サイバー空間アニメーション
+        ========================================== */
         body {
-            background-color: #0b0c10;
+            background-color: #06070a;
             color: #ffffff;
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(102, 252, 241, 0.08), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(255, 42, 133, 0.08), transparent 25%);
             overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 固定キャンバス背景 */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            pointer-events: none;
+        }
+
+        /* 遠近感のあるサイバーグリッド床 */
+        .cyber-grid-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            pointer-events: none;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(0, 245, 212, 0.14), transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(255, 0, 127, 0.14), transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(155, 93, 229, 0.1), transparent 60%);
+        }
+
+        .cyber-grid-floor {
+            position: fixed;
+            bottom: -10%;
+            left: -50%;
+            width: 200%;
+            height: 55vh;
+            z-index: -2;
+            pointer-events: none;
+            background-image: 
+                linear-gradient(to right, rgba(0, 245, 212, 0.12) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 245, 212, 0.12) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform: perspective(500px) rotateX(65deg);
+            animation: gridMove 8s linear infinite;
+            mask-image: linear-gradient(to top, rgba(0,0,0,0.9) 10%, transparent 90%);
+            -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.9) 10%, transparent 90%);
+        }
+
+        @keyframes gridMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 50px; }
+        }
+
+        /* スクロール連動の巨大透かしテキスト */
+        .watermark-text {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: clamp(4rem, 13vw, 11rem);
+            line-height: 1;
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(0, 245, 212, 0.12);
+            white-space: nowrap;
+            pointer-events: none;
+            user-select: none;
+            will-change: transform;
         }
 
         /* ネオンテキスト効果 */
         .neon-text-cyan {
-            text-shadow: 0 0 10px rgba(102, 252, 241, 0.7), 0 0 20px rgba(102, 252, 241, 0.4);
+            text-shadow: 0 0 10px rgba(0, 245, 212, 0.8), 0 0 25px rgba(0, 245, 212, 0.5), 0 0 45px rgba(0, 187, 249, 0.3);
         }
         .neon-text-gold {
-            text-shadow: 0 0 12px rgba(255, 215, 0, 0.8), 0 0 25px rgba(255, 165, 0, 0.6);
+            text-shadow: 0 0 12px rgba(255, 215, 0, 0.9), 0 0 28px rgba(255, 140, 0, 0.7);
+        }
+        .neon-text-pink {
+            text-shadow: 0 0 12px rgba(255, 0, 127, 0.8), 0 0 25px rgba(255, 0, 127, 0.5);
         }
 
-        /* カード基本スタイルと3Dホバー */
+        /* 斜めカット（サイバークリップパス） */
+        .cyber-clip {
+            clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+        }
+        .cyber-btn {
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .cyber-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+        }
+
+        /* ==========================================
+           無限スクロールマーキー（流れるティッカー帯）
+        ========================================== */
+        .marquee-wrapper {
+            overflow: hidden;
+            white-space: nowrap;
+            display: flex;
+        }
+        .marquee-content {
+            display: flex;
+            shrink: 0;
+            animation: marqueeScroll 22s linear infinite;
+        }
+        @keyframes marqueeScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* ==========================================
+           スクロールリビール（スライド出現演出）
+        ========================================== */
+        .reveal {
+            opacity: 0;
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+        .reveal-up {
+            transform: translateY(60px);
+        }
+        .reveal-left {
+            transform: translateX(-70px);
+        }
+        .reveal-right {
+            transform: translateX(70px);
+        }
+        .reveal-zoom {
+            transform: scale(0.88) translateY(30px);
+        }
+        .reveal.is-visible {
+            opacity: 1;
+            transform: translate(0, 0) scale(1);
+        }
+
+        /* ==========================================
+           カード3Dチルト & SSRホログラム演出
+        ========================================== */
+        .card-perspective {
+            perspective: 1000px;
+        }
         .tcg-card {
             position: relative;
-            border-radius: 16px;
-            transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.3s ease;
+            border-radius: 18px;
+            transition: transform 0.2s ease-out, box-shadow 0.3s ease;
             transform-style: preserve-3d;
             overflow: hidden;
         }
-        .tcg-card:hover {
-            transform: translateY(-8px) scale(1.02);
-        }
 
-        /* SSRカード専用：虹色ホログラム＆光の反射アニメーション */
+        /* 特別ホログラムカード専用：虹色ホログラム＆光の反射アニメーション */
         .card-ssr {
             border: 3px solid #ffd700;
-            box-shadow: 0 0 25px rgba(255, 215, 0, 0.5), inset 0 0 15px rgba(255, 215, 0, 0.4);
-            background: linear-gradient(135deg, #2a1b3d 0%, #44318d 50%, #1f2833 100%);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.55), 0 0 60px rgba(255, 0, 127, 0.25), inset 0 0 20px rgba(255, 215, 0, 0.4);
+            background: linear-gradient(135deg, #24123b 0%, #4a1c6b 45%, #162238 100%);
         }
         .card-ssr::before {
             content: "";
@@ -83,43 +205,42 @@
             background: linear-gradient(
                 115deg,
                 transparent 20%,
-                rgba(255, 255, 255, 0.1) 35%,
-                rgba(255, 215, 0, 0.4) 45%,
-                rgba(102, 252, 241, 0.4) 50%,
-                rgba(255, 42, 133, 0.4) 55%,
-                rgba(255, 255, 255, 0.1) 65%,
+                rgba(255, 255, 255, 0.12) 35%,
+                rgba(255, 215, 0, 0.45) 45%,
+                rgba(0, 245, 212, 0.45) 50%,
+                rgba(255, 0, 127, 0.45) 55%,
+                rgba(255, 255, 255, 0.12) 65%,
                 transparent 80%
             );
             transform: rotate(25deg);
-            animation: holoShine 4s infinite linear;
+            animation: holoShine 3.5s infinite linear;
             pointer-events: none;
             z-index: 10;
         }
 
-        /* SRカード用 */
-        .card-sr {
-            border: 3px solid #c084fc;
-            box-shadow: 0 0 15px rgba(192, 132, 252, 0.4);
-            background: linear-gradient(135deg, #1e1b4b 0%, #311042 100%);
+        /* 通常カード用 */
+        .card-r {
+            border: 2px solid rgba(0, 245, 212, 0.45);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(0, 245, 212, 0.1);
+            background: linear-gradient(145deg, #0f172a 0%, #162032 60%, #0b1120 100%);
         }
-        .card-sr::before {
-            content: "";
+        .card-r:hover {
+            border-color: #00f5d4;
+            box-shadow: 0 0 25px rgba(0, 245, 212, 0.4);
+        }
+
+        /* マウス追従グレア（光の反射） */
+        .card-glare {
             position: absolute;
             inset: 0;
-            background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
-            animation: holoShine 6s infinite linear;
             pointer-events: none;
-            z-index: 10;
+            background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.25), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 15;
         }
-
-        /* R / N カード用 */
-        .card-r {
-            border: 3px solid #38bdf8;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        }
-        .card-n {
-            border: 3px solid #9ca3af;
-            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        .tcg-card:hover .card-glare {
+            opacity: 1;
         }
 
         @keyframes holoShine {
@@ -127,12 +248,20 @@
             100% { transform: translateX(100%) translateY(100%) rotate(25deg); }
         }
 
-        /* キラキラパーティクル装飾 */
-        .sparkle-bg {
-            background-image: radial-gradient(#ffd700 1px, transparent 1px), radial-gradient(#66fcf1 1px, transparent 1px);
-            background-size: 40px 40px;
-            background-position: 0 0, 20px 20px;
-            opacity: 0.15;
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+        }
+        .animate-float {
+            animation: floatSlow 4s ease-in-out infinite;
+        }
+
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spinSlow 25s linear infinite;
         }
 
         /* カスタムスクロールバー */
@@ -140,32 +269,49 @@
             width: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #0b0c10;
+            background: #06070a;
         }
         ::-webkit-scrollbar-thumb {
-            background: #45a29e;
+            background: linear-gradient(to bottom, #00f5d4, #ff007f);
             border-radius: 4px;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #66fcf1;
+
+        /* 数値入力欄のブラウザ標準カウンター（上下矢印）を非表示 */
+        input[type="number"].no-spinner::-webkit-outer-spin-button,
+        input[type="number"].no-spinner::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"].no-spinner {
+            -moz-appearance: textfield;
         }
     </style>
 </head>
 <body class="font-sans antialiased selection:bg-pachi-pink selection:text-white">
 
+    <!-- 派手な背景エフェクト群 -->
+    <canvas id="bg-canvas"></canvas>
+    <div class="cyber-grid-bg"></div>
+    <div class="cyber-grid-floor"></div>
+
+    <!-- 画面最上部のスクロール進捗バー -->
+    <div class="fixed top-0 left-0 w-full h-1 z-50 bg-white/5">
+        <div id="scroll-progress-bar" class="h-full w-0 bg-gradient-to-r from-pachi-cyan via-pachi-gold to-pachi-pink shadow-[0_0_12px_#00f5d4]"></div>
+    </div>
+
     <!-- 通知トースト (alertの代わりに使用) -->
     <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- 管理者モードステータスバー (ログイン時のみ表示) -->
-    <div id="admin-banner" class="hidden bg-gradient-to-r from-pachi-pink via-purple-600 to-pachi-cyan text-white py-2 px-4 sticky top-0 z-50 shadow-lg">
+    <div id="admin-banner" class="hidden bg-gradient-to-r from-pachi-pink via-purple-600 to-pachi-cyan text-white py-2 px-4 sticky top-1 z-50 shadow-lg">
         <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2 text-sm font-bold">
             <div class="flex items-center gap-2">
-                <span class="bg-black/40 px-2 py-0.5 rounded text-xs uppercase tracking-wider animate-pulse">ADMIN MODE</span>
+                <span class="bg-black/50 px-2 py-0.5 rounded text-xs uppercase tracking-wider animate-pulse">ADMIN MODE</span>
                 <span>管理者としてログイン中です！各セクションの編集・追加が可能です。</span>
             </div>
             <div class="flex items-center gap-3">
-                <span id="storage-mode-badge" class="text-xs bg-black/30 px-2 py-1 rounded">接続確認中...</span>
-                <button onclick="logoutAdmin()" class="bg-black/60 hover:bg-black text-white px-3 py-1 rounded-full text-xs transition cursor-pointer">
+                <span id="storage-mode-badge" class="text-xs bg-black/40 px-2.5 py-1 rounded-full">接続確認中...</span>
+                <button onclick="logoutAdmin()" class="bg-black/70 hover:bg-black text-white px-3 py-1 rounded-full text-xs transition cursor-pointer">
                     <i class="fa-solid fa-right-from-bracket mr-1"></i>ログアウト
                 </button>
             </div>
@@ -173,29 +319,45 @@
     </div>
 
     <!-- ヘッダーナビゲーション -->
-    <header class="bg-pachi-dark/90 backdrop-blur-md border-b border-white/10 sticky top-0 z-40" id="main-header">
+    <header class="bg-pachi-dark/80 backdrop-blur-xl border-b border-pachi-cyan/20 sticky top-0 z-40" id="main-header">
         <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             <!-- ロゴ -->
-            <a href="#" class="flex items-center gap-2 group">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-pachi-cyan to-pachi-pink flex items-center justify-center text-pachi-dark font-display text-xl shadow-lg group-hover:rotate-12 transition">
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 cyber-clip bg-gradient-to-br from-pachi-cyan via-pachi-teal to-pachi-pink flex items-center justify-center text-pachi-dark font-display text-xl shadow-[0_0_15px_rgba(0,245,212,0.5)] group-hover:rotate-12 transition">
                     パ
                 </div>
                 <div>
                     <span class="font-display text-xl sm:text-2xl tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-pachi-cyan via-white to-pachi-gold">
                         パチモンカード
                     </span>
-                    <span class="block text-[10px] text-pachi-cyan tracking-widest -mt-1">OFFICIAL WEB SITE</span>
+                    <span class="block text-[10px] font-cyber text-pachi-cyan tracking-[0.25em] -mt-1">OFFICIAL PORTAL</span>
                 </div>
             </a>
 
             <!-- PCナビゲーション -->
-            <nav class="hidden md:flex items-center gap-6 font-bold text-sm">
-                <a href="#news" class="hover:text-pachi-cyan transition">お知らせ</a>
-                <a href="#howto" class="hover:text-pachi-cyan transition">遊び方</a>
-                <a href="#cards" class="hover:text-pachi-cyan transition">カード図鑑</a>
-                <a href="#articles" class="hover:text-pachi-cyan transition">開発記事・ブログ</a>
-                <button onclick="openLoginModal()" id="header-login-btn" class="bg-white/10 hover:bg-pachi-cyan hover:text-pachi-dark text-pachi-cyan border border-pachi-cyan/50 px-4 py-1.5 rounded-full text-xs transition cursor-pointer">
-                    <i class="fa-solid fa-lock mr-1"></i>管理者としてログイン
+            <nav class="hidden md:flex items-center gap-7 font-bold text-sm">
+                <a href="#movie" class="relative py-1 hover:text-pachi-cyan transition group flex items-center gap-1">
+                    <i class="fa-solid fa-play text-[10px] text-pachi-pink"></i>公式PV
+                    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-pachi-cyan transition-all group-hover:w-full"></span>
+                </a>
+                <a href="#news" class="relative py-1 hover:text-pachi-cyan transition group">
+                    お知らせ
+                    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-pachi-cyan transition-all group-hover:w-full"></span>
+                </a>
+                <a href="#howto" class="relative py-1 hover:text-pachi-cyan transition group">
+                    遊び方
+                    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-pachi-cyan transition-all group-hover:w-full"></span>
+                </a>
+                <a href="#cards" class="relative py-1 hover:text-pachi-cyan transition group">
+                    カード図鑑
+                    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-pachi-cyan transition-all group-hover:w-full"></span>
+                </a>
+                <a href="#articles" class="relative py-1 hover:text-pachi-cyan transition group">
+                    開発記事・ブログ
+                    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-pachi-cyan transition-all group-hover:w-full"></span>
+                </a>
+                <button onclick="openLoginModal()" id="header-login-btn" class="cyber-btn bg-pachi-cyan/15 hover:bg-pachi-cyan text-pachi-cyan hover:text-pachi-dark border border-pachi-cyan/60 px-4 py-2 text-xs font-black tracking-wider cursor-pointer shadow-[0_0_15px_rgba(0,245,212,0.2)]">
+                    <i class="fa-solid fa-lock mr-1.5"></i>管理者としてログイン
                 </button>
             </nav>
 
@@ -206,52 +368,67 @@
         </div>
 
         <!-- モバイルナビゲーション -->
-        <div id="mobile-menu" class="hidden md:hidden bg-pachi-card border-b border-white/10 px-4 py-4 space-y-3 font-bold text-sm">
-            <a href="#news" onclick="toggleMobileMenu()" class="block py-2 hover:text-pachi-cyan">お知らせ</a>
-            <a href="#howto" onclick="toggleMobileMenu()" class="block py-2 hover:text-pachi-cyan">遊び方</a>
-            <a href="#cards" onclick="toggleMobileMenu()" class="block py-2 hover:text-pachi-cyan">カード図鑑</a>
-            <a href="#articles" onclick="toggleMobileMenu()" class="block py-2 hover:text-pachi-cyan">開発記事・ブログ</a>
-            <button onclick="toggleMobileMenu(); openLoginModal();" class="w-full text-left py-2 text-pachi-cyan">
+        <div id="mobile-menu" class="hidden md:hidden bg-pachi-card/95 backdrop-blur-xl border-b border-pachi-cyan/30 px-4 py-4 space-y-3 font-bold text-sm">
+            <a href="#movie" onclick="toggleMobileMenu()" class="block py-2 hover:text-pachi-cyan border-b border-white/5 text-pachi-gold"><i class="fa-solid fa-play mr-1.5"></i>公式PV（映像）</a>
+            <a href="#news" onclick="toggleMobileMenu()" class="block py-2 hover:text-pachi-cyan border-b border-white/5">お知らせ</a>
+            <a href="#howto" onclick="toggleMobileMenu()" class="block py-2 hover:text-pachi-cyan border-b border-white/5">遊び方</a>
+            <a href="#cards" onclick="toggleMobileMenu()" class="block py-2 hover:text-pachi-cyan border-b border-white/5">カード図鑑</a>
+            <a href="#articles" onclick="toggleMobileMenu()" class="block py-2 hover:text-pachi-cyan border-b border-white/5">開発記事・ブログ</a>
+            <button onclick="toggleMobileMenu(); openLoginModal();" class="w-full text-left py-2 text-pachi-cyan font-black">
                 <i class="fa-solid fa-lock mr-2"></i>管理者としてログイン
             </button>
         </div>
     </header>
 
-    <!-- ヒーローセクション (目玉カード「永田ザウルス」展示) -->
-    <section class="relative py-12 sm:py-20 px-4 overflow-hidden">
-        <div class="absolute inset-0 sparkle-bg pointer-events-none"></div>
-        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
+    <!-- ==========================================
+         ヒーローセクション (派手なサイバーリング + 永田ザウルス展示)
+    =========================================== -->
+    <section class="relative py-14 sm:py-24 px-4 overflow-hidden">
+        <!-- 背後の巨大な回転サイバー魔法陣SVG -->
+        <div class="absolute top-1/2 right-[-10%] lg:right-[5%] -translate-y-1/2 w-[420px] h-[420px] sm:w-[580px] sm:h-[580px] pointer-events-none opacity-30 z-0">
+            <svg viewBox="0 0 400 400" class="w-full h-full animate-spin-slow">
+                <circle cx="200" cy="200" r="190" fill="none" stroke="#00f5d4" stroke-width="1.5" stroke-dasharray="12 8" />
+                <circle cx="200" cy="200" r="165" fill="none" stroke="#ffd700" stroke-width="2" stroke-dasharray="40 15 5 15" />
+                <circle cx="200" cy="200" r="130" fill="none" stroke="#ff007f" stroke-width="1" />
+                <polygon points="200,20 355,290 45,290" fill="none" stroke="#00f5d4" stroke-width="1" opacity="0.6" />
+                <polygon points="200,380 355,110 45,110" fill="none" stroke="#ffd700" stroke-width="1" opacity="0.6" />
+            </svg>
+        </div>
+
+        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
             
-            <!-- 左側：キャッチコピー -->
-            <div class="lg:col-span-7 text-center lg:text-left space-y-6">
-                <div class="inline-block bg-pachi-pink/20 border border-pachi-pink text-pachi-pink font-bold px-4 py-1 rounded-full text-xs sm:text-sm tracking-wider animate-bounce">
-                    🔥 教室発！超本格手作りトレーディングカードゲーム
+            <!-- 左側：キャッチコピー (スライドイン演出) -->
+            <div class="lg:col-span-7 text-center lg:text-left space-y-6 reveal reveal-left is-visible">
+                <div class="inline-flex items-center gap-2 bg-gradient-to-r from-pachi-pink/30 to-purple-600/30 border border-pachi-pink text-pink-200 font-bold px-4 py-1.5 rounded-full text-xs sm:text-sm tracking-wider shadow-[0_0_20px_rgba(255,0,127,0.4)]">
+                    <span class="w-2 h-2 rounded-full bg-pachi-pink animate-ping"></span>
+                    教室発！超本格オリジナル・トレーディングカードゲーム
                 </div>
-                <h1 class="font-display text-4xl sm:text-6xl leading-tight">
+                <h1 class="font-display text-4xl sm:text-6xl lg:text-[64px] leading-[1.15] tracking-tight">
                     伝説のパチモンを召喚し、<br>
-                    <span class="text-pachi-cyan neon-text-cyan">教室の頂点</span>を掴み取れ！
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-pachi-cyan via-white to-pachi-gold neon-text-cyan">教室の頂点</span>を掴み取れ！
                 </h1>
                 <p class="text-gray-300 text-base sm:text-lg max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                    休み時間の机の上が熱狂のバトルフィールドに変わる！個性豊かなオリジナルモンスターと戦略的なルールが融合した「パチモンカード」公式サイト。
+                    休み時間の机の上が熱狂のバトルフィールドに変わる！個性豊かなオリジナルモンスターと戦略的なルールが融合した「パチモンカード」公式ポータルサイト。
                 </p>
-                <div class="flex flex-wrap justify-center lg:justify-start gap-4 pt-2">
-                    <a href="#cards" class="bg-gradient-to-r from-pachi-cyan to-blue-500 text-pachi-dark font-black px-8 py-4 rounded-2xl shadow-lg shadow-pachi-cyan/30 hover:scale-105 transition flex items-center gap-2">
+                <div class="flex flex-wrap justify-center lg:justify-start gap-4 pt-3">
+                    <a href="#cards" class="cyber-btn bg-gradient-to-r from-pachi-cyan via-pachi-teal to-blue-500 text-pachi-dark font-black px-8 py-4 shadow-[0_0_25px_rgba(0,245,212,0.5)] flex items-center gap-2.5 text-base">
                         <i class="fa-solid fa-layer-group"></i> カード図鑑を見る
                     </a>
-                    <a href="#howto" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-8 py-4 rounded-2xl transition flex items-center gap-2">
-                        <i class="fa-solid fa-book-open"></i> ルール・遊び方
+                    <a href="#howto" class="cyber-btn bg-white/10 hover:bg-white/20 border border-pachi-cyan/50 text-white font-bold px-8 py-4 backdrop-blur-md flex items-center gap-2.5 text-base">
+                        <i class="fa-solid fa-book-open text-pachi-cyan"></i> ルール・遊び方
                     </a>
                 </div>
             </div>
 
-            <!-- 右側：目玉SSRカード「永田ザウルス」ショーケース -->
-            <div class="lg:col-span-5 flex flex-col items-center">
-                <div class="relative group">
-                    <!-- 背後のオーラ -->
-                    <div class="absolute -inset-4 bg-gradient-to-r from-pachi-gold via-pachi-pink to-pachi-cyan rounded-3xl blur-xl opacity-60 group-hover:opacity-90 transition duration-500 animate-pulse"></div>
+            <!-- 右側：目玉カード「永田ザウルス」3Dチルトショーケース -->
+            <div class="lg:col-span-5 flex flex-col items-center reveal reveal-right is-visible">
+                <div class="relative group card-perspective animate-float">
+                    <!-- 背後のネオンオーラ -->
+                    <div class="absolute -inset-5 bg-gradient-to-tr from-pachi-gold via-pachi-pink to-pachi-cyan rounded-3xl blur-2xl opacity-70 group-hover:opacity-100 transition duration-500 animate-pulse"></div>
                     
-                    <!-- 永田ザウルス SSRカード本体 -->
-                    <div id="hero-featured-card" class="tcg-card card-ssr w-72 sm:w-80 p-4 relative z-10 select-none">
+                    <!-- 永田ザウルス カード本体 (マウスで3Dに傾く) -->
+                    <div id="hero-featured-card" onmousemove="handleCardTilt(event, this)" onmouseleave="resetCardTilt(this)" class="tcg-card card-ssr w-72 sm:w-80 p-4 relative z-10 select-none cursor-pointer" onclick="openCardDetail('card-nagata')">
+                        <div class="card-glare"></div>
                         <!-- カードヘッダー：タイプと右上の強さの数字 -->
                         <div class="flex justify-between items-center mb-2">
                             <span class="bg-black/60 border border-pachi-gold/50 text-yellow-200 font-bold px-2.5 py-0.5 rounded-lg text-xs">
@@ -264,24 +441,19 @@
 
                         <!-- カードイラスト枠 (カスタムSVGイラスト) -->
                         <div class="relative w-full h-48 rounded-xl bg-gradient-to-b from-indigo-900 via-purple-900 to-black border-2 border-pachi-gold/70 overflow-hidden flex items-center justify-center mb-3 shadow-inner">
-                            <!-- 恐竜のシルエット＆ネオンイラストSVG -->
-                            <svg viewBox="0 0 200 160" class="w-44 h-44 drop-shadow-[0_0_12px_rgba(255,215,0,0.8)]">
+                            <svg viewBox="0 0 200 160" class="w-44 h-44 drop-shadow-[0_0_15px_rgba(255,215,0,0.9)]">
                                 <defs>
                                     <linearGradient id="dinoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                                         <stop offset="0%" stop-color="#ffd700" />
                                         <stop offset="50%" stop-color="#ff2a85" />
-                                        <stop offset="100%" stop-color="#66fcf1" />
+                                        <stop offset="100%" stop-color="#00f5d4" />
                                     </linearGradient>
                                 </defs>
-                                <!-- 雷エフェクト -->
-                                <path d="M30 20 L55 55 L40 60 L65 100" stroke="#66fcf1" stroke-width="3" fill="none" opacity="0.8"/>
+                                <path d="M30 20 L55 55 L40 60 L65 100" stroke="#00f5d4" stroke-width="3" fill="none" opacity="0.8"/>
                                 <path d="M170 25 L145 60 L160 65 L135 105" stroke="#ffd700" stroke-width="3" fill="none" opacity="0.8"/>
-                                <!-- 永田ザウルス 本体シルエット -->
                                 <path d="M55 135 L65 105 L45 95 L60 80 L75 85 L90 50 L85 35 L115 25 L145 35 L140 50 L118 52 L115 62 L135 65 L130 75 L110 73 L105 95 L125 135 L108 135 L95 108 L80 135 Z" fill="url(#dinoGrad)" stroke="#ffffff" stroke-width="2"/>
-                                <!-- 光る目 -->
                                 <circle cx="122" cy="37" r="4" fill="#ffffff"/>
                                 <circle cx="123" cy="37" r="2" fill="#ff0000"/>
-                                <!-- 背びれスパイク -->
                                 <polygon points="88,52 76,48 85,62" fill="#ffd700"/>
                                 <polygon points="82,66 68,64 78,76" fill="#ffd700"/>
                                 <polygon points="75,80 62,80 72,90" fill="#ffd700"/>
@@ -302,127 +474,254 @@
                         </div>
                     </div>
                 </div>
-                <span class="mt-4 text-xs text-pachi-gold font-bold tracking-widest uppercase">
-                    <i class="fa-solid fa-crown mr-1"></i> 看板カード「永田ザウルス」
-                </span>
+                <div class="mt-5 flex items-center gap-2 bg-black/60 border border-pachi-gold/40 px-4 py-1.5 rounded-full text-xs text-pachi-gold font-bold tracking-widest uppercase shadow-lg">
+                    <i class="fa-solid fa-crown animate-bounce"></i> 看板カード「永田ザウルス」・タップで拡大
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- メインコンテンツコンテナ -->
-    <main class="max-w-6xl mx-auto px-4 space-y-24 pb-24">
-
-        <!-- 1. お知らせ (NEWS) セクション -->
-        <section id="news" class="scroll-mt-24">
-            <div class="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-white/10 pb-4">
-                <div>
-                    <span class="text-pachi-cyan font-bold text-xs tracking-widest uppercase">NEWS & INFORMATION</span>
-                    <h2 class="font-display text-2xl sm:text-3xl text-white flex items-center gap-2">
-                        <i class="fa-solid fa-bullhorn text-pachi-pink"></i> お知らせ一覧
-                        <span id="news-count-badge" class="text-xs font-sans font-bold bg-white/10 text-pachi-cyan px-2.5 py-1 rounded-full ml-1">0件</span>
-                    </h2>
-                </div>
-                <div class="flex flex-wrap items-center gap-3">
-                    <!-- お知らせカテゴリーフィルター -->
-                    <select id="news-tag-filter" onchange="renderNews()" class="bg-pachi-card border border-white/20 text-white text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-pachi-cyan">
-                        <option value="ALL">すべてのお知らせ</option>
-                        <option value="新弾情報">新弾情報</option>
-                        <option value="カード情報">カード情報</option>
-                        <option value="大会・イベント">大会・イベント</option>
-                        <option value="ルール改定">ルール改定</option>
-                        <option value="お知らせ">お知らせ</option>
-                    </select>
-                    <!-- 管理者用：お知らせ追加ボタン -->
-                    <button onclick="openNewsModal()" class="admin-only hidden bg-pachi-pink hover:bg-pink-600 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-lg transition cursor-pointer">
-                        <i class="fa-solid fa-plus mr-1"></i> お知らせを追加
-                    </button>
-                </div>
+    <!-- ==========================================
+         ホームページ特有の流れるティッカー帯（マーキー）
+    =========================================== -->
+    <div class="relative py-3 bg-gradient-to-r from-pachi-cyan via-pachi-gold to-pachi-pink text-pachi-dark font-display text-sm sm:text-base tracking-wider shadow-[0_0_25px_rgba(0,245,212,0.4)] -rotate-1 scale-105 my-4 z-20 border-y-2 border-white">
+        <div class="marquee-wrapper">
+            <div class="marquee-content">
+                <span class="mx-6">⚡ PACHIMON CARD OFFICIAL SITE</span>
+                <span class="mx-6">🦖 伝説の覇王「永田ザウルス」降臨！</span>
+                <span class="mx-6">🔥 休み時間の机がバトルフィールドに変わる！</span>
+                <span class="mx-6">🃏 オリジナルカード続々参戦中！</span>
+                <span class="mx-6">⚡ PACHIMON CARD OFFICIAL SITE</span>
+                <span class="mx-6">🦖 伝説の覇王「永田ザウルス」降臨！</span>
+                <span class="mx-6">🔥 休み時間の机がバトルフィールドに変わる！</span>
+                <span class="mx-6">🃏 オリジナルカード続々参戦中！</span>
             </div>
+        </div>
+    </div>
 
-            <div id="news-list" class="space-y-3">
-                <!-- JavaScriptで動的に描画 -->
+    <!-- メインコンテンツコンテナ -->
+    <main class="max-w-6xl mx-auto px-4 space-y-28 py-16 relative z-10">
+
+        <!-- 0. 公式プロモーションムービー (PROMOTION MOVIE) セクション -->
+        <section id="movie" class="scroll-mt-24 relative">
+            <!-- スクロール連動の巨大背景文字 -->
+            <div class="watermark-text absolute -top-10 right-0 z-0" data-parallax-x="0.25">PROMOTION // MOVIE</div>
+
+            <div class="relative z-10 reveal reveal-zoom">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-8 border-b border-pachi-cyan/30 pb-4">
+                    <div>
+                        <span class="font-cyber text-pachi-pink font-bold text-xs tracking-[0.3em] uppercase">OFFICIAL TRAILER</span>
+                        <h2 class="font-display text-3xl sm:text-4xl text-white flex items-center gap-3 mt-1">
+                            <span class="w-2 h-8 bg-gradient-to-b from-pachi-cyan via-pachi-gold to-pachi-pink rounded-full"></span>
+                            第1弾 公式プロモーション映像
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-bold text-pachi-cyan bg-pachi-cyan/10 border border-pachi-cyan/40 px-3.5 py-1.5 rounded-full">
+                        <span class="w-2 h-2 rounded-full bg-pachi-pink animate-ping"></span>
+                        SPECIAL PV ON AIR
+                    </div>
+                </div>
+
+                <!-- シネマティック動画プレイヤー枠 -->
+                <div class="relative rounded-3xl overflow-hidden border-2 border-pachi-cyan/50 shadow-[0_0_50px_rgba(0,245,212,0.25)] bg-black group">
+                    <!-- 動画キャンバス (16:9 レスポンシブ) -->
+                    <div class="relative w-full aspect-video bg-black overflow-hidden">
+                        <canvas id="pv-canvas" class="w-full h-full block"></canvas>
+
+                        <!-- 画面クリックで再生/一時停止 -->
+                        <div onclick="togglePvPlay()" class="absolute inset-0 cursor-pointer z-10 flex items-center justify-center">
+                            <div id="pv-center-play-icon" class="hidden w-20 h-20 rounded-full bg-pachi-cyan/90 text-pachi-dark flex items-center justify-center text-3xl shadow-[0_0_30px_#00f5d4] transition transform hover:scale-110">
+                                <i class="fa-solid fa-play ml-1"></i>
+                            </div>
+                        </div>
+
+                        <!-- 映像内のサイバーHUDオーバーレイ -->
+                        <div class="absolute top-3 left-4 right-4 flex justify-between items-center pointer-events-none z-20 text-[10px] sm:text-xs font-cyber text-pachi-cyan/80">
+                            <div class="flex items-center gap-2 bg-black/60 px-2.5 py-1 rounded border border-pachi-cyan/30">
+                                <span id="pv-rec-dot" class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                                <span>PV_VOL1_NAGATA_DESCEND.MP4</span>
+                            </div>
+                            <div class="bg-black/60 px-2.5 py-1 rounded border border-pachi-cyan/30">
+                                <span id="pv-timecode">00:00 / 00:26</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- プレイヤー操作コントロールバー -->
+                    <div class="bg-pachi-card/95 backdrop-blur-xl border-t border-white/10 p-3 sm:p-4 space-y-3">
+                        <!-- シークバー -->
+                        <div onclick="seekPv(event)" class="w-full h-2.5 bg-white/10 rounded-full overflow-hidden cursor-pointer relative group/seek">
+                            <div id="pv-progress-bar" class="h-full w-0 bg-gradient-to-r from-pachi-cyan via-pachi-gold to-pachi-pink relative">
+                                <span class="absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-white rounded-full shadow"></span>
+                            </div>
+                        </div>
+
+                        <!-- ボタン＆チャプター一覧 -->
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex items-center gap-2">
+                                <button onclick="togglePvPlay()" id="pv-play-btn" class="cyber-btn bg-pachi-cyan text-pachi-dark font-black px-4 py-2 text-xs flex items-center gap-1.5 cursor-pointer">
+                                    <i class="fa-solid fa-pause"></i> 一時停止
+                                </button>
+                                <button onclick="restartPv()" class="cyber-btn bg-white/10 hover:bg-white/20 text-white font-bold px-3.5 py-2 text-xs flex items-center gap-1.5 cursor-pointer">
+                                    <i class="fa-solid fa-rotate-right"></i> 最初から
+                                </button>
+                                <button onclick="togglePvSound()" id="pv-sound-btn" class="cyber-btn bg-pachi-pink/20 hover:bg-pachi-pink/40 border border-pachi-pink/60 text-pink-200 font-bold px-3.5 py-2 text-xs flex items-center gap-1.5 cursor-pointer">
+                                    <i class="fa-solid fa-volume-xmark"></i> サウンド OFF
+                                </button>
+                            </div>
+
+                            <!-- シーンチャプタージャンプ -->
+                            <div class="flex flex-wrap items-center gap-1.5 text-[11px] font-bold">
+                                <span class="text-gray-400 mr-1 hidden sm:inline">シーン選択:</span>
+                                <button onclick="jumpPvChapter(0)" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-pachi-cyan/20 border border-white/10 hover:border-pachi-cyan/50 text-gray-200 transition cursor-pointer">① イントロ</button>
+                                <button onclick="jumpPvChapter(4.5)" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-pachi-cyan/20 border border-white/10 hover:border-pachi-cyan/50 text-gray-200 transition cursor-pointer">② バトル開幕</button>
+                                <button onclick="jumpPvChapter(9.5)" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-pachi-cyan/20 border border-white/10 hover:border-pachi-cyan/50 text-gray-200 transition cursor-pointer">③ カード紹介</button>
+                                <button onclick="jumpPvChapter(15.5)" class="px-2.5 py-1 rounded-lg bg-pachi-gold/15 hover:bg-pachi-gold/30 border border-pachi-gold/50 text-pachi-gold transition cursor-pointer">④ 永田ザウルス降臨</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- 2. 遊び方 (HOW TO PLAY) セクション -->
-        <section id="howto" class="scroll-mt-24">
-            <div class="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-white/10 pb-4">
-                <div>
-                    <span class="text-pachi-cyan font-bold text-xs tracking-widest uppercase">RULE & GUIDE</span>
-                    <h2 class="font-display text-2xl sm:text-3xl text-white flex items-center gap-2">
-                        <i class="fa-solid fa-gamepad text-pachi-cyan"></i> パチモンカードの遊び方
-                    </h2>
-                </div>
-                <!-- 管理者用：遊び方編集ボタン -->
-                <button onclick="openHowtoModal()" class="admin-only hidden bg-pachi-cyan hover:bg-teal-300 text-pachi-dark font-bold px-4 py-2 rounded-xl text-sm shadow-lg transition cursor-pointer">
-                    <i class="fa-solid fa-pen-to-square mr-1"></i> 遊び方を編集
-                </button>
-            </div>
+        <!-- 1. お知らせ (NEWS) セクション -->
+        <section id="news" class="scroll-mt-24 relative">
+            <!-- スクロール連動の巨大背景文字 -->
+            <div class="watermark-text absolute -top-10 -left-10 z-0" data-parallax-x="-0.25">INFORMATION // NEWS</div>
 
-            <div class="bg-pachi-card/80 border border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl">
-                <div id="howto-content" class="space-y-6 text-gray-200 leading-relaxed">
+            <div class="relative z-10 reveal reveal-up">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-8 border-b border-pachi-cyan/30 pb-4">
+                    <div>
+                        <span class="font-cyber text-pachi-cyan font-bold text-xs tracking-[0.3em] uppercase">NEWS & UPDATES</span>
+                        <h2 class="font-display text-3xl sm:text-4xl text-white flex items-center gap-3 mt-1">
+                            <span class="w-2 h-8 bg-gradient-to-b from-pachi-pink to-pachi-cyan rounded-full"></span>
+                            お知らせ一覧
+                            <span id="news-count-badge" class="text-xs font-sans font-black bg-pachi-cyan/20 border border-pachi-cyan/50 text-pachi-cyan px-3 py-1 rounded-full ml-1">0件</span>
+                        </h2>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <!-- お知らせカテゴリーフィルター -->
+                        <select id="news-tag-filter" onchange="renderNews()" class="bg-pachi-card/90 border border-pachi-cyan/40 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-pachi-cyan shadow-lg">
+                            <option value="ALL">すべてのお知らせ</option>
+                            <option value="新弾情報">新弾情報</option>
+                            <option value="カード情報">カード情報</option>
+                            <option value="大会・イベント">大会・イベント</option>
+                            <option value="ルール改定">ルール改定</option>
+                            <option value="お知らせ">お知らせ</option>
+                        </select>
+                        <!-- 管理者用：お知らせ追加ボタン -->
+                        <button onclick="openNewsModal()" class="admin-only hidden cyber-btn bg-pachi-pink hover:bg-pink-600 text-white font-bold px-5 py-2.5 text-sm shadow-[0_0_15px_rgba(255,0,127,0.5)] cursor-pointer">
+                            <i class="fa-solid fa-plus mr-1"></i> お知らせを追加
+                        </button>
+                    </div>
+                </div>
+
+                <div id="news-list" class="space-y-4">
                     <!-- JavaScriptで動的に描画 -->
                 </div>
             </div>
         </section>
 
-        <!-- 3. カード図鑑 (CARD GALLERY) セクション -->
-        <section id="cards" class="scroll-mt-24">
-            <div class="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-white/10 pb-4">
-                <div>
-                    <span class="text-pachi-gold font-bold text-xs tracking-widest uppercase">CARD DATABASE</span>
-                    <h2 class="font-display text-2xl sm:text-3xl text-white flex items-center gap-2">
-                        <i class="fa-solid fa-id-card text-pachi-gold"></i> パチモンカード図鑑
-                    </h2>
-                </div>
-                <div class="flex flex-wrap items-center gap-3">
-                    <!-- タイプフィルター -->
-                    <select id="type-filter" onchange="renderCards()" class="bg-pachi-card border border-white/20 text-white text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-pachi-cyan">
-                        <option value="ALL">すべてのタイプ</option>
-                    </select>
-                    <!-- 管理者用：カード追加ボタン -->
-                    <button onclick="openCardModal()" class="admin-only hidden bg-gradient-to-r from-pachi-gold to-amber-500 text-pachi-dark font-black px-4 py-2 rounded-xl text-sm shadow-lg transition cursor-pointer">
-                        <i class="fa-solid fa-plus mr-1"></i> 新カードを追加
+        <!-- 2. 遊び方 (HOW TO PLAY) セクション -->
+        <section id="howto" class="scroll-mt-24 relative">
+            <!-- スクロール連動の巨大背景文字 -->
+            <div class="watermark-text absolute -top-10 right-0 z-0" data-parallax-x="0.25">BATTLE SYSTEM // RULE</div>
+
+            <div class="relative z-10 reveal reveal-left">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-8 border-b border-pachi-cyan/30 pb-4">
+                    <div>
+                        <span class="font-cyber text-pachi-cyan font-bold text-xs tracking-[0.3em] uppercase">HOW TO PLAY</span>
+                        <h2 class="font-display text-3xl sm:text-4xl text-white flex items-center gap-3 mt-1">
+                            <span class="w-2 h-8 bg-gradient-to-b from-pachi-cyan to-blue-500 rounded-full"></span>
+                            パチモンカードの遊び方
+                        </h2>
+                    </div>
+                    <!-- 管理者用：遊び方編集ボタン -->
+                    <button onclick="openHowtoModal()" class="admin-only hidden cyber-btn bg-pachi-cyan hover:bg-teal-300 text-pachi-dark font-black px-5 py-2.5 text-sm shadow-[0_0_15px_rgba(0,245,212,0.5)] cursor-pointer">
+                        <i class="fa-solid fa-pen-to-square mr-1"></i> 遊び方を編集
                     </button>
                 </div>
-            </div>
 
-            <div id="cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <!-- JavaScriptで動的に描画 -->
+                <div class="bg-pachi-card/70 backdrop-blur-xl border border-pachi-cyan/25 rounded-3xl p-6 sm:p-10 shadow-[0_0_40px_rgba(0,0,0,0.7)] relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-pachi-cyan/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div id="howto-content" class="space-y-6 text-gray-200 leading-relaxed relative z-10">
+                        <!-- JavaScriptで動的に描画 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. カード図鑑 (CARD GALLERY) セクション -->
+        <section id="cards" class="scroll-mt-24 relative">
+            <!-- スクロール連動の巨大背景文字 -->
+            <div class="watermark-text absolute -top-10 -left-10 z-0" data-parallax-x="-0.2">CARD ARCHIVE // DECK</div>
+
+            <div class="relative z-10 reveal reveal-up">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-8 border-b border-pachi-gold/30 pb-4">
+                    <div>
+                        <span class="font-cyber text-pachi-gold font-bold text-xs tracking-[0.3em] uppercase">CARD DATABASE</span>
+                        <h2 class="font-display text-3xl sm:text-4xl text-white flex items-center gap-3 mt-1">
+                            <span class="w-2 h-8 bg-gradient-to-b from-pachi-gold to-amber-500 rounded-full"></span>
+                            パチモンカード図鑑
+                        </h2>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <!-- タイプフィルター -->
+                        <select id="type-filter" onchange="renderCards()" class="bg-pachi-card/90 border border-pachi-gold/40 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-pachi-gold shadow-lg">
+                            <option value="ALL">すべてのタイプ</option>
+                        </select>
+                        <!-- 管理者用：カード追加ボタン -->
+                        <button onclick="openCardModal()" class="admin-only hidden cyber-btn bg-gradient-to-r from-pachi-gold to-amber-500 text-pachi-dark font-black px-5 py-2.5 text-sm shadow-[0_0_20px_rgba(255,215,0,0.5)] cursor-pointer">
+                            <i class="fa-solid fa-plus mr-1"></i> 新カードを追加
+                        </button>
+                    </div>
+                </div>
+
+                <div id="cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
+                    <!-- JavaScriptで動的に描画 -->
+                </div>
             </div>
         </section>
 
         <!-- 4. 開発記事・コラム (ARTICLES) セクション -->
-        <section id="articles" class="scroll-mt-24">
-            <div class="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-white/10 pb-4">
-                <div>
-                    <span class="text-pachi-pink font-bold text-xs tracking-widest uppercase">DEV BLOG & STRATEGY</span>
-                    <h2 class="font-display text-2xl sm:text-3xl text-white flex items-center gap-2">
-                        <i class="fa-solid fa-newspaper text-pachi-pink"></i> 開発秘話・攻略記事
-                    </h2>
-                </div>
-                <!-- 管理者用：記事投稿ボタン -->
-                <button onclick="openArticleModal()" class="admin-only hidden bg-pachi-pink hover:bg-pink-600 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-lg transition cursor-pointer">
-                    <i class="fa-solid fa-pen-nib mr-1"></i> 記事を書く
-                </button>
-            </div>
+        <section id="articles" class="scroll-mt-24 relative">
+            <!-- スクロール連動の巨大背景文字 -->
+            <div class="watermark-text absolute -top-10 right-0 z-0" data-parallax-x="0.2">DEV BLOG // STRATEGY</div>
 
-            <div id="articles-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- JavaScriptで動的に描画 -->
+            <div class="relative z-10 reveal reveal-right">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-8 border-b border-pachi-pink/30 pb-4">
+                    <div>
+                        <span class="font-cyber text-pachi-pink font-bold text-xs tracking-[0.3em] uppercase">DEV BLOG & STRATEGY</span>
+                        <h2 class="font-display text-3xl sm:text-4xl text-white flex items-center gap-3 mt-1">
+                            <span class="w-2 h-8 bg-gradient-to-b from-pachi-pink to-purple-500 rounded-full"></span>
+                            開発秘話・攻略記事
+                        </h2>
+                    </div>
+                    <!-- 管理者用：記事投稿ボタン -->
+                    <button onclick="openArticleModal()" class="admin-only hidden cyber-btn bg-pachi-pink hover:bg-pink-600 text-white font-bold px-5 py-2.5 text-sm shadow-[0_0_15px_rgba(255,0,127,0.5)] cursor-pointer">
+                        <i class="fa-solid fa-pen-nib mr-1"></i> 記事を書く
+                    </button>
+                </div>
+
+                <div id="articles-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- JavaScriptで動的に描画 -->
+                </div>
             </div>
         </section>
 
     </main>
 
     <!-- フッター -->
-    <footer class="bg-black/80 border-t border-white/10 py-10 px-4 text-center text-gray-400 text-sm">
+    <footer class="bg-black/90 backdrop-blur-xl border-t border-pachi-cyan/20 py-12 px-4 text-center text-gray-400 text-sm relative z-10">
         <div class="max-w-6xl mx-auto space-y-4">
-            <div class="font-display text-xl text-white">パチモンカード製作委員会</div>
-            <p class="text-xs text-gray-500">
+            <div class="font-display text-2xl bg-clip-text text-transparent bg-gradient-to-r from-pachi-cyan via-white to-pachi-gold">
+                パチモンカード製作委員会
+            </div>
+            <p class="text-xs text-gray-400">
                 © 2026 パチモンカード製作委員会 All Rights Reserved.｜学校発オリジナルカードゲーム「パチモンカード」公式サイト
             </p>
             <div class="pt-4">
-                <button onclick="openLoginModal()" id="footer-login-btn" class="inline-flex items-center gap-2 bg-white/5 hover:bg-white/15 text-gray-300 hover:text-pachi-cyan border border-white/10 px-5 py-2.5 rounded-full text-xs font-bold transition cursor-pointer">
+                <button onclick="openLoginModal()" id="footer-login-btn" class="cyber-btn inline-flex items-center gap-2 bg-white/5 hover:bg-pachi-cyan/20 text-gray-300 hover:text-pachi-cyan border border-white/15 hover:border-pachi-cyan/50 px-6 py-2.5 text-xs font-bold cursor-pointer">
                     <i class="fa-solid fa-key"></i> 管理者としてログイン
                 </button>
             </div>
@@ -430,17 +729,29 @@
     </footer>
 
     <!-- ==========================================
-         モーダル群 (ログイン / 各種投稿・編集フォーム)
+         モーダル群 (カード詳細拡大 / ログイン / 各種投稿・編集フォーム)
     =========================================== -->
 
+    <!-- 0. カード拡大プレビューモーダル -->
+    <div id="card-detail-modal" onclick="closeModal('card-detail-modal')" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+        <div onclick="event.stopPropagation()" class="max-w-sm w-full relative animate-[bounce_0.4s_ease-out]">
+            <button onclick="closeModal('card-detail-modal')" class="absolute -top-12 right-0 text-white hover:text-pachi-cyan text-2xl font-bold flex items-center gap-1 cursor-pointer">
+                <span class="text-xs font-cyber">CLOSE</span> <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="card-detail-content" class="card-perspective">
+                <!-- JavaScriptで拡大カードを挿入 -->
+            </div>
+        </div>
+    </div>
+
     <!-- 1. 管理者ログインモーダル -->
-    <div id="login-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-pachi-card border border-pachi-cyan/50 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
-            <button onclick="closeModal('login-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+    <div id="login-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+        <div class="bg-pachi-card border border-pachi-cyan/50 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-[0_0_40px_rgba(0,245,212,0.3)] relative">
+            <button onclick="closeModal('login-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl cursor-pointer">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="text-center mb-6">
-                <div class="w-14 h-14 bg-pachi-cyan/20 text-pachi-cyan rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3">
+                <div class="w-14 h-14 bg-pachi-cyan/20 text-pachi-cyan rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3 shadow-[0_0_20px_rgba(0,245,212,0.3)]">
                     <i class="fa-solid fa-shield-halved"></i>
                 </div>
                 <h3 class="font-display text-2xl text-white">管理者ログイン</h3>
@@ -450,9 +761,9 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-300 mb-1">管理者パスワード</label>
                     <input type="password" id="admin-password-input" required placeholder="パスワードを入力..." 
-                        class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pachi-cyan">
+                        class="w-full bg-black/60 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pachi-cyan">
                 </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-pachi-cyan to-blue-500 text-pachi-dark font-black py-3 rounded-xl shadow-lg hover:opacity-90 transition cursor-pointer">
+                <button type="submit" class="cyber-btn w-full bg-gradient-to-r from-pachi-cyan to-blue-500 text-pachi-dark font-black py-3.5 shadow-lg cursor-pointer">
                     ログインする
                 </button>
             </form>
@@ -460,9 +771,9 @@
     </div>
 
     <!-- 2. お知らせ追加・編集モーダル -->
-    <div id="news-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div id="news-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
         <div class="bg-pachi-card border border-pachi-pink/50 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
-            <button onclick="closeModal('news-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+            <button onclick="closeModal('news-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl cursor-pointer">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <h3 id="news-modal-title" class="font-display text-xl text-white mb-4"><i class="fa-solid fa-bullhorn text-pachi-pink mr-2"></i>お知らせを追加</h3>
@@ -470,7 +781,7 @@
                 <input type="hidden" id="news-edit-id" value="">
                 <div>
                     <label class="block text-xs font-bold text-gray-300 mb-1">ラベル（種類）</label>
-                    <select id="news-tag" class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-2.5 text-white">
+                    <select id="news-tag" class="w-full bg-black/60 border border-white/20 rounded-xl px-4 py-2.5 text-white">
                         <option value="新弾情報">新弾情報</option>
                         <option value="カード情報">カード情報</option>
                         <option value="大会・イベント">大会・イベント</option>
@@ -481,14 +792,14 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-300 mb-1">タイトル</label>
                     <input type="text" id="news-title" required placeholder="例：第2弾パック制作決定！" 
-                        class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-2.5 text-white">
+                        class="w-full bg-black/60 border border-white/20 rounded-xl px-4 py-2.5 text-white">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-300 mb-1">詳細内容</label>
                     <textarea id="news-body" rows="3" required placeholder="お知らせの本文を入力..." 
-                        class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-2.5 text-white"></textarea>
+                        class="w-full bg-black/60 border border-white/20 rounded-xl px-4 py-2.5 text-white"></textarea>
                 </div>
-                <button type="submit" id="news-submit-btn" class="w-full bg-pachi-pink hover:bg-pink-600 text-white font-bold py-3 rounded-xl transition cursor-pointer">
+                <button type="submit" id="news-submit-btn" class="cyber-btn w-full bg-pachi-pink hover:bg-pink-600 text-white font-bold py-3 cursor-pointer">
                     公開する
                 </button>
             </form>
@@ -496,26 +807,26 @@
     </div>
 
     <!-- 3. 遊び方編集モーダル -->
-    <div id="howto-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div id="howto-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
         <div class="bg-pachi-card border border-pachi-cyan/50 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeModal('howto-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+            <button onclick="closeModal('howto-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl cursor-pointer">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <h3 class="font-display text-xl text-white mb-4"><i class="fa-solid fa-gamepad text-pachi-cyan mr-2"></i>遊び方・ルールの編集</h3>
             <form onsubmit="handleSaveHowto(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-gray-300 mb-1">STEP 1：デッキの準備</label>
-                    <textarea id="howto-step1" rows="2" required class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-2 text-white text-sm"></textarea>
+                    <textarea id="howto-step1" rows="2" required class="w-full bg-black/60 border border-white/20 rounded-xl px-4 py-2 text-white text-sm"></textarea>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-300 mb-1">STEP 2：バトルの流れ</label>
-                    <textarea id="howto-step2" rows="3" required class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-2 text-white text-sm"></textarea>
+                    <textarea id="howto-step2" rows="3" required class="w-full bg-black/60 border border-white/20 rounded-xl px-4 py-2 text-white text-sm"></textarea>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-300 mb-1">STEP 3：勝利条件・特殊ルール</label>
-                    <textarea id="howto-step3" rows="3" required class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-2 text-white text-sm"></textarea>
+                    <textarea id="howto-step3" rows="3" required class="w-full bg-black/60 border border-white/20 rounded-xl px-4 py-2 text-white text-sm"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-pachi-cyan text-pachi-dark font-black py-3 rounded-xl transition cursor-pointer">
+                <button type="submit" class="cyber-btn w-full bg-pachi-cyan text-pachi-dark font-black py-3 cursor-pointer">
                     変更を保存する
                 </button>
             </form>
@@ -523,9 +834,9 @@
     </div>
 
     <!-- 4. カード追加・編集モーダル -->
-    <div id="card-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div id="card-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
         <div class="bg-pachi-card border border-pachi-gold/50 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeModal('card-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+            <button onclick="closeModal('card-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl cursor-pointer">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <h3 id="card-modal-title" class="font-display text-xl text-white mb-4"><i class="fa-solid fa-sparkles text-pachi-gold mr-2"></i>新しいパチモンカードを追加</h3>
@@ -534,32 +845,32 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-gray-300 mb-1">キャラクター名</label>
-                        <input type="text" id="card-name" required placeholder="例：田中ドラゴン" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
+                        <input type="text" id="card-name" required placeholder="例：田中ドラゴン" class="w-full bg-black/60 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-300 mb-1">右上の強さ（数字）</label>
-                        <input type="number" id="card-power" required value="1500" step="100" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
+                        <input type="number" id="card-power" required value="1500" step="1" inputmode="numeric" placeholder="例：1500" class="no-spinner w-full bg-black/60 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-gray-300 mb-1">タイプ</label>
-                        <input type="text" id="card-type" required placeholder="例：炎・竜族" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
+                        <input type="text" id="card-type" required placeholder="例：炎・竜族" class="w-full bg-black/60 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-300 mb-1">アイコン絵文字</label>
-                        <input type="text" id="card-emoji" required value="🐉" placeholder="例：🦖, 🔥, 🤖, 👻" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
+                        <input type="text" id="card-emoji" required value="🐉" placeholder="例：🦖, 🔥, 🤖, 👻" class="w-full bg-black/60 border border-white/20 rounded-xl px-3 py-2 text-white text-sm">
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-300 mb-1">説明文（能力・解説）</label>
-                    <textarea id="card-desc" rows="3" required placeholder="カードの効果や説明文を入力..." class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white text-sm"></textarea>
+                    <textarea id="card-desc" rows="3" required placeholder="カードの効果や説明文を入力..." class="w-full bg-black/60 border border-white/20 rounded-xl px-3 py-2 text-white text-sm"></textarea>
                 </div>
                 <div class="flex items-center gap-2">
                     <input type="checkbox" id="card-holo" class="w-4 h-4 accent-pachi-gold">
                     <label for="card-holo" class="text-xs font-bold text-yellow-300">キラキラ光る特別枠（ホログラム）にする</label>
                 </div>
-                <button type="submit" id="card-submit-btn" class="w-full bg-gradient-to-r from-pachi-gold to-amber-500 text-pachi-dark font-black py-3 rounded-xl transition cursor-pointer">
+                <button type="submit" id="card-submit-btn" class="cyber-btn w-full bg-gradient-to-r from-pachi-gold to-amber-500 text-pachi-dark font-black py-3 cursor-pointer">
                     図鑑に登録する
                 </button>
             </form>
@@ -567,9 +878,9 @@
     </div>
 
     <!-- 5. 記事投稿・編集モーダル -->
-    <div id="article-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div id="article-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
         <div class="bg-pachi-card border border-pachi-pink/50 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
-            <button onclick="closeModal('article-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+            <button onclick="closeModal('article-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl cursor-pointer">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <h3 id="article-modal-title" class="font-display text-xl text-white mb-4"><i class="fa-solid fa-pen-nib text-pachi-pink mr-2"></i>新しい記事を書く</h3>
@@ -577,17 +888,17 @@
                 <input type="hidden" id="article-edit-id" value="">
                 <div>
                     <label class="block text-xs font-bold text-gray-300 mb-1">記事タイトル</label>
-                    <input type="text" id="article-title" required placeholder="例：永田ザウルス誕生秘話！" class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-2.5 text-white">
+                    <input type="text" id="article-title" required placeholder="例：永田ザウルス誕生秘話！" class="w-full bg-black/60 border border-white/20 rounded-xl px-4 py-2.5 text-white">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-300 mb-1">投稿者名</label>
-                    <input type="text" id="article-author" required value="パチモン制作者" class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-2.5 text-white">
+                    <input type="text" id="article-author" required value="パチモン制作者" class="w-full bg-black/60 border border-white/20 rounded-xl px-4 py-2.5 text-white">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-300 mb-1">記事本文</label>
-                    <textarea id="article-content" rows="5" required placeholder="開発の裏話や最強デッキ紹介などを書こう！" class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-2.5 text-white"></textarea>
+                    <textarea id="article-content" rows="5" required placeholder="開発の裏話や最強デッキ紹介などを書こう！" class="w-full bg-black/60 border border-white/20 rounded-xl px-4 py-2.5 text-white"></textarea>
                 </div>
-                <button type="submit" id="article-submit-btn" class="w-full bg-pachi-pink hover:bg-pink-600 text-white font-bold py-3 rounded-xl transition cursor-pointer">
+                <button type="submit" id="article-submit-btn" class="cyber-btn w-full bg-pachi-pink hover:bg-pink-600 text-white font-bold py-3 cursor-pointer">
                     記事を公開する
                 </button>
             </form>
@@ -595,7 +906,7 @@
     </div>
 
     <!-- ==========================================
-         JavaScript ロジック (Firebase連携 + 自動フォールバック)
+         JavaScript ロジック (派手な背景Canvas + PV映像 + スクロール演出 + Firebase連携)
     =========================================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -612,7 +923,7 @@
             appId: "1:938291165081:web:e2d226befe0f229a744508"
         };
 
-        // 初期データ（初回起動時のサンプルデータ）
+        // 初期データ
         const DEFAULT_DATA = {
             news: [
                 {
@@ -696,21 +1007,156 @@
             articles: []
         };
 
-        // トースト通知表示関数
+        // ==========================================
+        // 派手な背景Canvasパーティクル & サイバーネットワーク
+        // ==========================================
+        function initCyberBackground() {
+            const canvas = document.getElementById('bg-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const colors = ['#00f5d4', '#ffd700', '#ff007f', '#00bbf9'];
+            const particles = Array.from({ length: 65 }, () => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.8,
+                vy: -Math.random() * 0.9 - 0.2,
+                size: Math.random() * 2.5 + 1,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                alpha: Math.random() * 0.7 + 0.3
+            }));
+
+            function animateBg() {
+                ctx.clearRect(0, 0, width, height);
+
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.y < -10) {
+                        p.y = height + 10;
+                        p.x = Math.random() * width;
+                    }
+                    if (p.x < -10) p.x = width + 10;
+                    if (p.x > width + 10) p.x = -10;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = p.alpha;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = p.color;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+
+                    // 近いパーティクル同士を光のラインで結ぶ
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const p2 = particles[j];
+                        const dx = p.x - p2.x;
+                        const dy = p.y - p2.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 130) {
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            ctx.strokeStyle = p.color;
+                            ctx.globalAlpha = (1 - dist / 130) * 0.18;
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                        }
+                    }
+                }
+                ctx.globalAlpha = 1;
+                requestAnimationFrame(animateBg);
+            }
+            animateBg();
+        }
+
+        // ==========================================
+        // スクロール連動演出 (スライド出現 + 進捗バー + 横スライド透かし文字)
+        // ==========================================
+        let revealObserver = null;
+
+        function initScrollAnimations() {
+            revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+            observeRevealElements();
+
+            window.addEventListener('scroll', () => {
+                const scrollTop = window.scrollY;
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+                const bar = document.getElementById('scroll-progress-bar');
+                if (bar) bar.style.width = `${progress}%`;
+
+                document.querySelectorAll('[data-parallax-x]').forEach(el => {
+                    const speed = parseFloat(el.getAttribute('data-parallax-x')) || 0;
+                    const rect = el.parentElement.getBoundingClientRect();
+                    const offset = (window.innerHeight - rect.top) * speed;
+                    el.style.transform = `translateX(${offset}px)`;
+                });
+            }, { passive: true });
+        }
+
+        function observeRevealElements() {
+            if (!revealObserver) return;
+            document.querySelectorAll('.reveal').forEach(el => {
+                revealObserver.observe(el);
+            });
+        }
+
+        // ==========================================
+        // カード3Dチルト & グレア反射エフェクト
+        // ==========================================
+        window.handleCardTilt = function(e, cardEl) {
+            const rect = cardEl.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -12;
+            const rotateY = ((x - centerX) / centerX) * 12;
+
+            cardEl.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.04)`;
+            cardEl.style.setProperty('--mx', `${(x / rect.width) * 100}%`);
+            cardEl.style.setProperty('--my', `${(y / rect.height) * 100}%`);
+        };
+
+        window.resetCardTilt = function(cardEl) {
+            cardEl.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+        };
+
+        // ==========================================
+        // トースト通知 & エスケープ
+        // ==========================================
         window.showToast = function(message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             const colors = {
-                info: 'bg-pachi-card border-pachi-cyan text-white',
-                success: 'bg-emerald-900/95 border-emerald-400 text-white',
-                error: 'bg-rose-900/95 border-rose-400 text-white'
+                info: 'bg-pachi-card/95 border-pachi-cyan text-white',
+                success: 'bg-emerald-950/95 border-emerald-400 text-white',
+                error: 'bg-rose-950/95 border-rose-400 text-white'
             };
             const icons = {
                 info: 'fa-circle-info text-pachi-cyan',
                 success: 'fa-circle-check text-emerald-400',
                 error: 'fa-triangle-exclamation text-rose-400'
             };
-            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-2xl text-sm font-bold transition-all duration-300 transform translate-x-0 ${colors[type] || colors.info}`;
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-2xl text-sm font-bold transition-all duration-300 backdrop-blur-md ${colors[type] || colors.info}`;
             toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} text-lg"></i><span>${escapeHTML(message)}</span>`;
             container.appendChild(toast);
             setTimeout(() => {
@@ -720,7 +1166,6 @@
             }, 3500);
         };
 
-        // XSS防止用エスケープ
         function escapeHTML(str) {
             if (typeof str !== 'string') return str;
             return str.replace(/[&<>'"]/g, tag => ({
@@ -728,7 +1173,9 @@
             }[tag]));
         }
 
-        // Firebase 初期化とデータ同期のセットアップ
+        // ==========================================
+        // Firebase 初期化とデータ同期
+        // ==========================================
         async function initAppStorage() {
             const configToUse = (typeof __firebase_config !== 'undefined') 
                 ? JSON.parse(__firebase_config) 
@@ -744,7 +1191,6 @@
                     const auth = getAuth(app);
                     state.db = getFirestore(app);
 
-                    // 認証処理（カスタムトークン優先、なければ匿名認証を試行）
                     try {
                         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                             await signInWithCustomToken(auth, __initial_auth_token);
@@ -752,7 +1198,7 @@
                             await signInAnonymously(auth);
                         }
                     } catch (authErr) {
-                        // 匿名認証がコンソールで未有効化の場合も、公開ルールなら読み書き可能なので続行
+                        // 匿名認証未有効時も続行
                     }
 
                     state.useFirebase = true;
@@ -760,62 +1206,30 @@
                     setupFirestoreListeners();
                     return;
                 } catch (err) {
-                    console.warn("Firebase初期化スキップ（ローカルモードで動作します）:", err.message);
+                    console.warn("Firebase初期化スキップ:", err.message);
                 }
             }
 
-            // フォールバック：ローカルストレージ（メモリ保持）モード
             fallbackToLocal();
         }
 
         function fallbackToLocal() {
             state.useFirebase = false;
             updateStorageBadge();
-            try {
-                const saved = localStorage.getItem('pachimon_card_data_v2');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    state.news = parsed.news || DEFAULT_DATA.news;
-                    state.howto = parsed.howto || DEFAULT_DATA.howto;
-                    state.cards = parsed.cards || DEFAULT_DATA.cards;
-                    state.articles = parsed.articles || DEFAULT_DATA.articles;
-                } else {
-                    state.news = [...DEFAULT_DATA.news];
-                    state.howto = { ...DEFAULT_DATA.howto };
-                    state.cards = [...DEFAULT_DATA.cards];
-                    state.articles = [...DEFAULT_DATA.articles];
-                    saveLocalData();
-                }
-            } catch (e) {
-                state.news = [...DEFAULT_DATA.news];
-                state.howto = { ...DEFAULT_DATA.howto };
-                state.cards = [...DEFAULT_DATA.cards];
-                state.articles = [...DEFAULT_DATA.articles];
-            }
+            state.news = [...DEFAULT_DATA.news];
+            state.howto = { ...DEFAULT_DATA.howto };
+            state.cards = [...DEFAULT_DATA.cards];
+            state.articles = [...DEFAULT_DATA.articles];
             renderAll();
-        }
-
-        function saveLocalData() {
-            try {
-                localStorage.setItem('pachimon_card_data_v2', JSON.stringify({
-                    news: state.news,
-                    howto: state.howto,
-                    cards: state.cards,
-                    articles: state.articles
-                }));
-            } catch (e) {
-                // ストレージ制限環境ではメモリ上のみで維持
-            }
         }
 
         function updateStorageBadge() {
             const badge = document.getElementById('storage-mode-badge');
             if (badge) {
-                badge.textContent = state.useFirebase ? '保存先: Firebaseクラウド同期中 ☁️' : '保存先: ブラウザ保存（ローカル）';
+                badge.textContent = state.useFirebase ? '保存先: Firebaseクラウド同期中 ☁️' : '保存先: セッション保存（ローカル）';
             }
         }
 
-        // Firestore リアルタイムリスナー設定
         function setupFirestoreListeners() {
             const baseCol = (colName) => collection(state.db, 'artifacts', state.appId, 'public', 'data', colName);
             let permissionHandled = false;
@@ -824,12 +1238,11 @@
                 if (!permissionHandled) {
                     permissionHandled = true;
                     console.warn("Firestore権限エラーのためローカルモードへ切り替えます:", err.message);
-                    showToast('Firebaseの権限設定が未完了のため、一時的にブラウザ保存モードで動作します', 'info');
+                    showToast('Firebaseの権限設定が未完了のため、一時的にローカルモードで動作します', 'info');
                     fallbackToLocal();
                 }
             };
 
-            // 1. お知らせ監視
             onSnapshot(baseCol('news'), (snapshot) => {
                 if (snapshot.empty) {
                     state.news = [...DEFAULT_DATA.news];
@@ -840,7 +1253,6 @@
                 renderNews();
             }, handleFirestoreError);
 
-            // 2. 遊び方監視
             onSnapshot(baseCol('settings'), (snapshot) => {
                 const howtoDoc = snapshot.docs.find(d => d.id === 'howto');
                 if (howtoDoc) {
@@ -851,13 +1263,11 @@
                 renderHowto();
             }, handleFirestoreError);
 
-            // 3. カード図鑑監視
             onSnapshot(baseCol('cards'), (snapshot) => {
                 if (snapshot.empty) {
                     state.cards = [...DEFAULT_DATA.cards];
                 } else {
                     const fetched = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                    // 永田ザウルスがDBに未登録なら先頭に含める
                     if (!fetched.some(c => c.name === '永田ザウルス')) {
                         fetched.unshift(DEFAULT_DATA.cards[0]);
                     }
@@ -867,7 +1277,6 @@
                 renderCards();
             }, handleFirestoreError);
 
-            // 4. 記事監視
             onSnapshot(baseCol('articles'), (snapshot) => {
                 if (snapshot.empty) {
                     state.articles = [...DEFAULT_DATA.articles];
@@ -888,9 +1297,9 @@
             renderHowto();
             renderCards();
             renderArticles();
+            observeRevealElements();
         }
 
-        // トップの永田ザウルス展示も最新データに同期
         function updateHeroFeaturedCard() {
             const nagata = state.cards.find(c => c.name === '永田ザウルス');
             const heroEl = document.getElementById('hero-featured-card');
@@ -898,6 +1307,7 @@
             const powerVal = nagata.power !== undefined ? nagata.power : (nagata.atk || 9999);
             const descVal = nagata.desc || nagata.skill || '';
             heroEl.innerHTML = `
+                <div class="card-glare"></div>
                 <div class="flex justify-between items-center mb-2">
                     <span class="bg-black/60 border border-pachi-gold/50 text-yellow-200 font-bold px-2.5 py-0.5 rounded-lg text-xs">
                         ${escapeHTML(nagata.type)}
@@ -907,15 +1317,15 @@
                     </div>
                 </div>
                 <div class="relative w-full h-48 rounded-xl bg-gradient-to-b from-indigo-900 via-purple-900 to-black border-2 border-pachi-gold/70 overflow-hidden flex items-center justify-center mb-3 shadow-inner">
-                    <svg viewBox="0 0 200 160" class="w-44 h-44 drop-shadow-[0_0_12px_rgba(255,215,0,0.8)]">
+                    <svg viewBox="0 0 200 160" class="w-44 h-44 drop-shadow-[0_0_15px_rgba(255,215,0,0.9)]">
                         <defs>
                             <linearGradient id="dinoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#ffd700" />
                                 <stop offset="50%" stop-color="#ff2a85" />
-                                <stop offset="100%" stop-color="#66fcf1" />
+                                <stop offset="100%" stop-color="#00f5d4" />
                             </linearGradient>
                         </defs>
-                        <path d="M30 20 L55 55 L40 60 L65 100" stroke="#66fcf1" stroke-width="3" fill="none" opacity="0.8"/>
+                        <path d="M30 20 L55 55 L40 60 L65 100" stroke="#00f5d4" stroke-width="3" fill="none" opacity="0.8"/>
                         <path d="M170 25 L145 60 L160 65 L135 105" stroke="#ffd700" stroke-width="3" fill="none" opacity="0.8"/>
                         <path d="M55 135 L65 105 L45 95 L60 80 L75 85 L90 50 L85 35 L115 25 L145 35 L140 50 L118 52 L115 62 L135 65 L130 75 L110 73 L105 95 L125 135 L108 135 L95 108 L80 135 Z" fill="url(#dinoGrad)" stroke="#ffffff" stroke-width="2"/>
                         <circle cx="122" cy="37" r="4" fill="#ffffff"/>
@@ -950,28 +1360,28 @@
             }
 
             if (filteredNews.length === 0) {
-                container.innerHTML = `<p class="text-gray-400 text-sm py-6 text-center bg-pachi-card/40 rounded-2xl border border-white/5">該当するお知らせはありません。</p>`;
+                container.innerHTML = `<p class="text-gray-400 text-sm py-8 text-center bg-pachi-card/50 rounded-2xl border border-white/10">該当するお知らせはありません。</p>`;
                 return;
             }
             container.innerHTML = filteredNews.map((item, index) => `
-                <div class="bg-pachi-card/70 border border-white/10 hover:border-pachi-cyan/40 rounded-2xl p-4 sm:p-5 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="reveal reveal-up is-visible bg-pachi-card/75 backdrop-blur-md border border-white/10 hover:border-pachi-cyan/60 hover:translate-x-2 rounded-2xl p-5 transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg" style="transition-delay: ${index * 60}ms">
                     <div class="space-y-1.5">
                         <div class="flex flex-wrap items-center gap-2 text-xs">
-                            ${index === 0 && selectedTag === 'ALL' ? `<span class="bg-pachi-cyan text-pachi-dark font-black px-2 py-0.5 rounded text-[10px] tracking-wider">NEW</span>` : ''}
-                            <span class="text-gray-400 font-mono">${escapeHTML(item.date)}</span>
-                            <span class="bg-pachi-pink/20 text-pachi-pink border border-pachi-pink/40 px-2.5 py-0.5 rounded-full font-bold">
+                            ${index === 0 && selectedTag === 'ALL' ? `<span class="bg-gradient-to-r from-pachi-cyan to-blue-400 text-pachi-dark font-black px-2.5 py-0.5 rounded text-[10px] tracking-wider shadow-[0_0_10px_rgba(0,245,212,0.6)]">NEW</span>` : ''}
+                            <span class="text-pachi-cyan/80 font-cyber">${escapeHTML(item.date)}</span>
+                            <span class="bg-pachi-pink/20 text-pink-300 border border-pachi-pink/50 px-3 py-0.5 rounded-full font-bold">
                                 ${escapeHTML(item.tag)}
                             </span>
                         </div>
-                        <h3 class="font-bold text-base sm:text-lg text-white">${escapeHTML(item.title)}</h3>
+                        <h3 class="font-bold text-lg sm:text-xl text-white">${escapeHTML(item.title)}</h3>
                         <p class="text-gray-300 text-sm leading-relaxed whitespace-pre-line">${escapeHTML(item.body)}</p>
                     </div>
                     ${state.isAdmin ? `
                         <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
-                            <button onclick="openNewsModal('${item.id}')" class="text-pachi-cyan hover:text-white bg-pachi-cyan/10 hover:bg-pachi-cyan/30 border border-pachi-cyan/40 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">
+                            <button onclick="openNewsModal('${item.id}')" class="text-pachi-cyan hover:text-white bg-pachi-cyan/15 hover:bg-pachi-cyan/30 border border-pachi-cyan/50 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer">
                                 <i class="fa-solid fa-pen mr-1"></i>編集
                             </button>
-                            <button onclick="deleteNews('${item.id}')" class="text-rose-400 hover:text-rose-300 bg-rose-950/50 hover:bg-rose-900/60 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">
+                            <button onclick="deleteNews('${item.id}')" class="text-rose-400 hover:text-rose-200 bg-rose-950/60 hover:bg-rose-800/80 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer">
                                 <i class="fa-solid fa-trash mr-1"></i>削除
                             </button>
                         </div>
@@ -983,29 +1393,31 @@
         function renderHowto() {
             const container = document.getElementById('howto-content');
             const steps = [
-                { num: 'STEP 01', title: 'デッキの準備', text: state.howto.step1, icon: 'fa-layer-group', color: 'text-pachi-cyan border-pachi-cyan/40' },
-                { num: 'STEP 02', title: 'バトルの流れ', text: state.howto.step2, icon: 'fa-bolt', color: 'text-pachi-gold border-pachi-gold/40' },
-                { num: 'STEP 03', title: '勝利条件・特殊ルール', text: state.howto.step3, icon: 'fa-trophy', color: 'text-pachi-pink border-pachi-pink/40' }
+                { num: 'STEP 01', title: 'デッキの準備', text: state.howto.step1, icon: 'fa-layer-group', color: 'text-pachi-cyan border-pachi-cyan/40 bg-pachi-cyan/10' },
+                { num: 'STEP 02', title: 'バトルの流れ', text: state.howto.step2, icon: 'fa-bolt', color: 'text-pachi-gold border-pachi-gold/40 bg-pachi-gold/10' },
+                { num: 'STEP 03', title: '勝利条件・特殊ルール', text: state.howto.step3, icon: 'fa-trophy', color: 'text-pachi-pink border-pachi-pink/40 bg-pachi-pink/10' }
             ];
-            container.innerHTML = steps.map(s => `
-                <div class="bg-black/40 border ${s.color.split(' ')[1]} rounded-2xl p-5 flex flex-col sm:flex-row gap-4 items-start">
-                    <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-xl ${s.color.split(' ')[0]} shrink-0">
-                        <i class="fa-solid ${s.icon}"></i>
+            container.innerHTML = steps.map((s) => {
+                const [textCol, borderCol, bgCol] = s.color.split(' ');
+                return `
+                    <div class="bg-black/50 border ${borderCol} hover:scale-[1.01] transition-transform rounded-2xl p-6 flex flex-col sm:flex-row gap-5 items-start shadow-lg">
+                        <div class="w-14 h-14 cyber-clip ${bgCol} flex items-center justify-center text-2xl ${textCol} shrink-0 shadow-inner">
+                            <i class="fa-solid ${s.icon}"></i>
+                        </div>
+                        <div class="space-y-1.5">
+                            <span class="text-xs font-cyber font-black tracking-[0.2em] ${textCol}">${s.num}</span>
+                            <h3 class="font-bold text-xl text-white">${s.title}</h3>
+                            <p class="text-gray-300 text-sm sm:text-base whitespace-pre-line">${escapeHTML(s.text)}</p>
+                        </div>
                     </div>
-                    <div class="space-y-1">
-                        <span class="text-xs font-display tracking-widest ${s.color.split(' ')[0]}">${s.num}</span>
-                        <h3 class="font-bold text-lg text-white">${s.title}</h3>
-                        <p class="text-gray-300 text-sm sm:text-base whitespace-pre-line">${escapeHTML(s.text)}</p>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         window.renderCards = function() {
             const container = document.getElementById('cards-grid');
             const filterSelect = document.getElementById('type-filter');
             
-            // タイプフィルターの選択肢を現在のカード一覧から自動生成
             if (filterSelect) {
                 const currentVal = filterSelect.value;
                 const types = [...new Set(state.cards.map(c => c.type).filter(Boolean))];
@@ -1021,7 +1433,7 @@
                 return;
             }
 
-            container.innerHTML = filtered.map(card => {
+            container.innerHTML = filtered.map((card, idx) => {
                 const isHolo = card.isHolo || card.rarity === 'SSR';
                 const cardFrameClass = isHolo ? 'card-ssr' : 'card-r';
                 const powerBadgeClass = isHolo 
@@ -1031,49 +1443,90 @@
                 const descVal = card.desc || [card.skill, card.flavor].filter(Boolean).join('\n');
 
                 return `
-                    <div class="tcg-card ${cardFrameClass} p-4 flex flex-col justify-between">
-                        <div>
-                            <!-- 上部：タイプと右上の強さの数字のみ -->
-                            <div class="flex justify-between items-center mb-2 gap-2">
-                                <span class="bg-black/60 border border-white/20 text-gray-200 font-bold px-2.5 py-0.5 rounded-lg text-[11px] truncate">
-                                    ${escapeHTML(card.type)}
-                                </span>
-                                <span class="${powerBadgeClass} font-display px-3 py-0.5 rounded-lg text-sm shadow shrink-0">
-                                    ${escapeHTML(String(powerVal))}
-                                </span>
+                    <div class="card-perspective reveal reveal-zoom is-visible" style="transition-delay: ${idx * 70}ms">
+                        <div onmousemove="handleCardTilt(event, this)" onmouseleave="resetCardTilt(this)" onclick="openCardDetail('${card.id}')" class="tcg-card ${cardFrameClass} p-4 h-full flex flex-col justify-between cursor-pointer">
+                            <div class="card-glare"></div>
+                            <div>
+                                <!-- 上部：タイプと右上の強さの数字のみ -->
+                                <div class="flex justify-between items-center mb-2 gap-2">
+                                    <span class="bg-black/60 border border-white/20 text-gray-200 font-bold px-2.5 py-0.5 rounded-lg text-[11px] truncate">
+                                        ${escapeHTML(card.type)}
+                                    </span>
+                                    <span class="${powerBadgeClass} font-display px-3 py-0.5 rounded-lg text-sm shadow shrink-0">
+                                        ${escapeHTML(String(powerVal))}
+                                    </span>
+                                </div>
+
+                                <!-- イラストエリア -->
+                                <div class="w-full h-36 rounded-xl bg-black/50 border border-white/15 flex items-center justify-center mb-3 relative overflow-hidden">
+                                    <span class="text-6xl drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] transform transition-transform duration-300 hover:scale-110">${escapeHTML(card.emoji || '👾')}</span>
+                                </div>
+
+                                <!-- キャラクター名 -->
+                                <h3 class="font-display text-lg text-white text-center mb-3 ${isHolo ? 'neon-text-gold' : ''}">
+                                    ${escapeHTML(card.name)}
+                                </h3>
+
+                                <!-- 説明文 -->
+                                <div class="bg-black/60 rounded-xl p-3 border border-white/10 text-xs">
+                                    <p class="text-gray-200 leading-relaxed whitespace-pre-line">${escapeHTML(descVal)}</p>
+                                </div>
                             </div>
 
-                            <!-- イラストエリア -->
-                            <div class="w-full h-36 rounded-xl bg-black/50 border border-white/15 flex items-center justify-center mb-3 relative overflow-hidden">
-                                <span class="text-6xl drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]">${escapeHTML(card.emoji || '👾')}</span>
-                            </div>
-
-                            <!-- キャラクター名 -->
-                            <h3 class="font-display text-lg text-white text-center mb-3 ${isHolo ? 'neon-text-gold' : ''}">
-                                ${escapeHTML(card.name)}
-                            </h3>
-
-                            <!-- 説明文 -->
-                            <div class="bg-black/60 rounded-xl p-3 border border-white/10 text-xs">
-                                <p class="text-gray-200 leading-relaxed whitespace-pre-line">${escapeHTML(descVal)}</p>
-                            </div>
-                        </div>
-
-                        ${state.isAdmin ? `
-                            <div class="mt-3 flex gap-2 relative z-20">
-                                <button onclick="openCardModal('${card.id}')" class="flex-1 bg-pachi-cyan/20 hover:bg-pachi-cyan/40 border border-pachi-cyan/50 text-pachi-cyan hover:text-white py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">
-                                    <i class="fa-solid fa-pen mr-1"></i>編集
-                                </button>
-                                ${card.id !== 'card-nagata' ? `
-                                    <button onclick="deleteCard('${card.id}')" class="flex-1 bg-rose-950/80 hover:bg-rose-800 text-rose-200 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">
-                                        <i class="fa-solid fa-trash mr-1"></i>削除
+                            ${state.isAdmin ? `
+                                <div class="mt-3 flex gap-2 relative z-20" onclick="event.stopPropagation()">
+                                    <button onclick="openCardModal('${card.id}')" class="flex-1 bg-pachi-cyan/20 hover:bg-pachi-cyan/40 border border-pachi-cyan/50 text-pachi-cyan hover:text-white py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">
+                                        <i class="fa-solid fa-pen mr-1"></i>編集
                                     </button>
-                                ` : ''}
-                            </div>
-                        ` : ''}
+                                    ${card.id !== 'card-nagata' ? `
+                                        <button onclick="deleteCard('${card.id}')" class="flex-1 bg-rose-950/80 hover:bg-rose-800 text-rose-200 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">
+                                            <i class="fa-solid fa-trash mr-1"></i>削除
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
                     </div>
                 `;
             }).join('');
+        };
+
+        // カード拡大モーダル表示
+        window.openCardDetail = function(cardId) {
+            const card = state.cards.find(c => c.id === cardId);
+            if (!card) return;
+            const isHolo = card.isHolo || card.rarity === 'SSR';
+            const cardFrameClass = isHolo ? 'card-ssr' : 'card-r';
+            const powerBadgeClass = isHolo 
+                ? 'bg-gradient-to-r from-yellow-300 via-pachi-gold to-amber-500 text-black' 
+                : 'bg-pachi-cyan text-pachi-dark';
+            const powerVal = card.power !== undefined ? card.power : (card.atk || 1000);
+            const descVal = card.desc || [card.skill, card.flavor].filter(Boolean).join('\n');
+
+            const container = document.getElementById('card-detail-content');
+            container.innerHTML = `
+                <div onmousemove="handleCardTilt(event, this)" onmouseleave="resetCardTilt(this)" class="tcg-card ${cardFrameClass} p-6 shadow-2xl">
+                    <div class="card-glare"></div>
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="bg-black/70 border border-white/25 text-gray-100 font-bold px-3 py-1 rounded-lg text-xs">
+                            ${escapeHTML(card.type)}
+                        </span>
+                        <span class="${powerBadgeClass} font-display px-4 py-1 rounded-lg text-xl shadow">
+                            ${escapeHTML(String(powerVal))}
+                        </span>
+                    </div>
+                    <div class="w-full h-52 rounded-2xl bg-black/60 border border-white/20 flex items-center justify-center mb-4 relative overflow-hidden">
+                        <span class="text-8xl drop-shadow-[0_0_20px_rgba(255,255,255,0.6)]">${escapeHTML(card.emoji || '👾')}</span>
+                    </div>
+                    <h3 class="font-display text-2xl sm:text-3xl text-white text-center mb-4 ${isHolo ? 'neon-text-gold' : 'neon-text-cyan'}">
+                        ${escapeHTML(card.name)}
+                    </h3>
+                    <div class="bg-black/75 rounded-2xl p-4 border border-white/15 text-sm">
+                        <p class="text-gray-100 leading-relaxed whitespace-pre-line">${escapeHTML(descVal)}</p>
+                    </div>
+                </div>
+            `;
+            openModal('card-detail-modal');
         };
 
         function renderArticles() {
@@ -1082,18 +1535,18 @@
                 container.innerHTML = `<p class="col-span-full text-gray-400 text-sm py-4">まだ記事が投稿されていません。</p>`;
                 return;
             }
-            container.innerHTML = state.articles.map(art => `
-                <article class="bg-pachi-card/80 border border-white/10 hover:border-pachi-pink/50 rounded-3xl p-6 flex flex-col justify-between transition shadow-lg">
+            container.innerHTML = state.articles.map((art, idx) => `
+                <article class="reveal reveal-up is-visible bg-pachi-card/80 backdrop-blur-md border border-white/10 hover:border-pachi-pink/60 hover:-translate-y-1.5 rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl" style="transition-delay: ${idx * 80}ms">
                     <div class="space-y-3">
-                        <div class="flex items-center justify-between text-xs text-gray-400">
-                            <span><i class="fa-regular fa-calendar mr-1 text-pachi-pink"></i>${escapeHTML(art.date)}</span>
-                            <span><i class="fa-solid fa-user-pen mr-1 text-pachi-cyan"></i>${escapeHTML(art.author)}</span>
+                        <div class="flex items-center justify-between text-xs text-gray-400 font-cyber">
+                            <span><i class="fa-regular fa-calendar mr-1.5 text-pachi-pink"></i>${escapeHTML(art.date)}</span>
+                            <span class="font-sans bg-white/5 px-2.5 py-1 rounded-full"><i class="fa-solid fa-user-pen mr-1 text-pachi-cyan"></i>${escapeHTML(art.author)}</span>
                         </div>
                         <h3 class="font-bold text-xl text-white leading-snug">${escapeHTML(art.title)}</h3>
                         <p class="text-gray-300 text-sm leading-relaxed whitespace-pre-line">${escapeHTML(art.content)}</p>
                     </div>
                     ${state.isAdmin ? `
-                        <div class="pt-4 mt-4 border-t border-white/10 flex justify-end gap-3">
+                        <div class="pt-4 mt-5 border-t border-white/10 flex justify-end gap-3">
                             <button onclick="openArticleModal('${art.id}')" class="text-pachi-cyan hover:text-white text-xs font-bold cursor-pointer">
                                 <i class="fa-solid fa-pen mr-1"></i>文章を編集
                             </button>
@@ -1107,106 +1560,598 @@
         }
 
         // ==========================================
-        // 管理者認証 & モーダル操作ロジック
+        // 公式プロモーションムービー (PV) アニメーション & サウンドエンジン
+        // ==========================================
+        const PV_DURATION = 26.0; // 全長26秒のループ映像
+        let pvState = {
+            playing: true,
+            time: 0,
+            lastFrameTime: 0,
+            soundEnabled: false,
+            audioCtx: null,
+            lastBeatStep: -1,
+            warningPlayed: false,
+            roarPlayed: false
+        };
+
+        function initPromoMovie() {
+            const canvas = document.getElementById('pv-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            function resizePvCanvas() {
+                const rect = canvas.parentElement.getBoundingClientRect();
+                canvas.width = Math.max(800, rect.width * 1.5);
+                canvas.height = Math.max(450, rect.height * 1.5);
+            }
+            resizePvCanvas();
+            window.addEventListener('resize', resizePvCanvas);
+
+            const sparks = Array.from({ length: 50 }, () => ({
+                x: Math.random(),
+                y: Math.random(),
+                speed: 0.2 + Math.random() * 0.6,
+                size: 1.5 + Math.random() * 3,
+                angle: Math.random() * Math.PI * 2
+            }));
+
+            function renderPvLoop(now) {
+                if (!pvState.lastFrameTime) pvState.lastFrameTime = now;
+                const dt = Math.min(0.1, (now - pvState.lastFrameTime) / 1000);
+                pvState.lastFrameTime = now;
+
+                if (pvState.playing) {
+                    pvState.time += dt;
+                    if (pvState.time >= PV_DURATION) {
+                        pvState.time = 0;
+                        pvState.lastBeatStep = -1;
+                        pvState.warningPlayed = false;
+                        pvState.roarPlayed = false;
+                    }
+                    triggerPvAudio(pvState.time);
+                }
+
+                updatePvHud();
+                drawPvFrame(ctx, canvas.width, canvas.height, pvState.time, sparks);
+                requestAnimationFrame(renderPvLoop);
+            }
+
+            requestAnimationFrame(renderPvLoop);
+        }
+
+        function updatePvHud() {
+            const bar = document.getElementById('pv-progress-bar');
+            const tc = document.getElementById('pv-timecode');
+            if (bar) bar.style.width = `${(pvState.time / PV_DURATION) * 100}%`;
+            if (tc) {
+                const curSec = String(Math.floor(pvState.time)).padStart(2, '0');
+                const totSec = String(Math.floor(PV_DURATION)).padStart(2, '0');
+                tc.textContent = `00:${curSec} / 00:${totSec}`;
+            }
+        }
+
+        function triggerPvAudio(t) {
+            if (!pvState.soundEnabled || !pvState.audioCtx) return;
+            const ctx = pvState.audioCtx;
+            if (ctx.state === 'suspended') ctx.resume();
+
+            const beatStep = Math.floor(t * 2);
+            if (beatStep !== pvState.lastBeatStep) {
+                pvState.lastBeatStep = beatStep;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = t >= 15.5 ? 'sawtooth' : 'triangle';
+                const freq = (beatStep % 4 === 0) ? 110 : (beatStep % 2 === 0 ? 146.8 : 164.8);
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.18);
+
+                gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.21);
+            }
+
+            if (t >= 15.5 && t < 16.0 && !pvState.warningPlayed) {
+                pvState.warningPlayed = true;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(880, ctx.currentTime);
+                osc.frequency.setValueAtTime(660, ctx.currentTime + 0.15);
+                osc.frequency.setValueAtTime(880, ctx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.46);
+            }
+
+            if (t >= 17.2 && t < 17.8 && !pvState.roarPlayed) {
+                pvState.roarPlayed = true;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(28, ctx.currentTime + 0.9);
+                gain.gain.setValueAtTime(0.28, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.95);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 1.0);
+            }
+        }
+
+        function drawStylizedCardSilhouette(ctx, cx, cy, cw, ch, angle, glowColor) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(angle);
+            ctx.fillStyle = '#0f172a';
+            ctx.strokeStyle = glowColor;
+            ctx.lineWidth = 4;
+            ctx.shadowColor = glowColor;
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.roundRect(-cw / 2, -ch / 2, cw, ch, 16);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(-cw * 0.38, -ch * 0.38, cw * 0.76, ch * 0.76);
+            ctx.restore();
+        }
+
+        function drawPvFrame(ctx, w, h, t, sparks) {
+            ctx.save();
+
+            // 画面シェイク計算 (永田ザウルス降臨直後)
+            if (t >= 17.2 && t < 18.0) {
+                const shake = (18.0 - t) * 18;
+                ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+            }
+
+            // 背景クリア
+            ctx.fillStyle = '#05070c';
+            ctx.fillRect(0, 0, w, h);
+
+            // =====================================
+            // シーン1 (0.0s - 4.5s): サイバー覚醒イントロ
+            // =====================================
+            if (t < 4.5) {
+                ctx.strokeStyle = 'rgba(0, 245, 212, 0.25)';
+                ctx.lineWidth = 2;
+                const horizon = h * 0.55;
+                for (let i = -10; i <= 10; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(w / 2 + i * 30, horizon);
+                    ctx.lineTo(w / 2 + i * 180, h);
+                    ctx.stroke();
+                }
+                for (let j = 0; j < 8; j++) {
+                    const yOffset = ((t * 120 + j * 45) % (h - horizon));
+                    ctx.beginPath();
+                    ctx.moveTo(0, horizon + yOffset);
+                    ctx.lineTo(w, horizon + yOffset);
+                    ctx.stroke();
+                }
+
+                const grad = ctx.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w * 0.4);
+                grad.addColorStop(0, 'rgba(0, 245, 212, 0.35)');
+                grad.addColorStop(1, 'transparent');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, w, h);
+
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                if (t < 2.2) {
+                    const alpha = Math.min(1, t * 1.5);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                    ctx.font = `900 ${Math.floor(w * 0.036)}px "Noto Sans JP", sans-serif`;
+                    ctx.fillText('教室の退屈な休み時間が――', w / 2, h * 0.46);
+                } else {
+                    const scale = 1 + Math.max(0, (2.5 - t)) * 0.5;
+                    ctx.save();
+                    ctx.translate(w / 2, h * 0.48);
+                    ctx.scale(scale, scale);
+                    ctx.shadowColor = '#00f5d4';
+                    ctx.shadowBlur = 25;
+                    ctx.fillStyle = '#00f5d4';
+                    ctx.font = `900 ${Math.floor(w * 0.048)}px "Dela Gothic One", sans-serif`;
+                    ctx.fillText('いま、伝説の戦場へ変わる！', 0, 0);
+                    ctx.restore();
+                }
+            }
+            // =====================================
+            // シーン2 (4.5s - 9.5s): スピード線＆バトル開幕
+            // =====================================
+            else if (t < 9.5) {
+                const localT = t - 4.5;
+                ctx.save();
+                ctx.translate(w / 2, h / 2);
+                for (let i = 0; i < 48; i++) {
+                    const angle = (i / 48) * Math.PI * 2 + localT * 0.5;
+                    const innerR = w * 0.18 + Math.sin(localT * 15 + i) * 20;
+                    const outerR = w * 0.65;
+                    ctx.strokeStyle = i % 3 === 0 ? 'rgba(0, 245, 212, 0.45)' : 'rgba(255, 0, 127, 0.35)';
+                    ctx.lineWidth = (i % 4 === 0) ? 4 : 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(Math.cos(angle) * innerR, Math.sin(angle) * innerR);
+                    ctx.lineTo(Math.cos(angle) * outerR, Math.sin(angle) * outerR);
+                    ctx.stroke();
+                }
+                ctx.restore();
+
+                const slide = Math.sin(localT * 3) * 60;
+                drawStylizedCardSilhouette(ctx, w * 0.32 + slide, h * 0.5, w * 0.16, h * 0.44, -0.18, '#00f5d4');
+                drawStylizedCardSilhouette(ctx, w * 0.68 - slide, h * 0.5, w * 0.16, h * 0.44, 0.18, '#ff007f');
+
+                ctx.textAlign = 'center';
+                ctx.shadowColor = '#000';
+                ctx.shadowBlur = 15;
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `900 ${Math.floor(w * 0.045)}px "Dela Gothic One", sans-serif`;
+                const text = localT < 2.5 ? '20枚のデッキで挑む頭脳戦！' : '一撃逆転のコンボを決めろ！';
+                ctx.fillText(text, w / 2, h * 0.5);
+            }
+            // =====================================
+            // シーン3 (9.5s - 15.5s): 登録パチモン連続カットイン（永田ザウルス除外）
+            // =====================================
+            else if (t < 15.5) {
+                const localT = t - 9.5;
+                const regularCards = state.cards.filter(c => c.id !== 'card-nagata' && (!c.name || !c.name.includes('永田ザウルス')));
+                const showcase = regularCards.length > 0 ? regularCards : DEFAULT_DATA.cards.slice(1);
+                const idx = Math.floor(localT / 2.0) % showcase.length;
+                const card = showcase[idx];
+                const subT = localT % 2.0;
+
+                // 斜めサイバーバンド背景
+                ctx.fillStyle = 'rgba(0, 245, 212, 0.08)';
+                ctx.beginPath();
+                ctx.moveTo(0, h * 0.2);
+                ctx.lineTo(w, h * 0.05);
+                ctx.lineTo(w, h * 0.8);
+                ctx.lineTo(0, h * 0.95);
+                ctx.closePath();
+                ctx.fill();
+
+                // 右側にカード枠スライドイン
+                const slideIn = Math.max(0, 1 - subT * 3) * 160;
+                const cardX = w * 0.72 + slideIn;
+                const cardY = h * 0.52;
+                const cw = w * 0.23;
+                const ch = h * 0.64;
+
+                ctx.save();
+                ctx.translate(cardX, cardY);
+                ctx.fillStyle = '#0f172a';
+                ctx.strokeStyle = '#00f5d4';
+                ctx.lineWidth = 4;
+                ctx.shadowColor = '#00f5d4';
+                ctx.shadowBlur = 24;
+                ctx.beginPath();
+                ctx.roundRect(-cw / 2, -ch / 2, cw, ch, 18);
+                ctx.fill();
+                ctx.stroke();
+
+                // カード右上の強さ数字
+                const powerVal = card.power !== undefined ? card.power : 1000;
+                ctx.fillStyle = '#00f5d4';
+                ctx.font = `900 ${Math.floor(w * 0.025)}px "Orbitron", sans-serif`;
+                ctx.textAlign = 'right';
+                ctx.fillText(String(powerVal), cw * 0.4, -ch * 0.36);
+
+                // カード中央絵文字
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = `${Math.floor(w * 0.085)}px sans-serif`;
+                ctx.fillText(card.emoji || '👾', 0, -ch * 0.04);
+
+                // カード名
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `900 ${Math.floor(w * 0.021)}px "Dela Gothic One", sans-serif`;
+                ctx.fillText(card.name || 'パチモン', 0, ch * 0.32);
+                ctx.restore();
+
+                // 左側テキストカットイン
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#00f5d4';
+                ctx.font = `900 ${Math.floor(w * 0.02)}px "Orbitron", sans-serif`;
+                ctx.fillText(`ARCHIVE // ${card.type || 'UNKNOWN'}`, w * 0.09, h * 0.33);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `900 ${Math.floor(w * 0.048)}px "Dela Gothic One", sans-serif`;
+                ctx.fillText(card.name || 'パチモン', w * 0.09, h * 0.45);
+
+                ctx.fillStyle = '#ffd700';
+                ctx.font = `900 ${Math.floor(w * 0.032)}px "Orbitron", sans-serif`;
+                ctx.fillText(`POWER : ${powerVal}`, w * 0.09, h * 0.57);
+
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = `700 ${Math.floor(w * 0.019)}px "Noto Sans JP", sans-serif`;
+                const shortDesc = (card.desc || '').slice(0, 32) + ((card.desc || '').length > 32 ? '…' : '');
+                ctx.fillText(shortDesc, w * 0.09, h * 0.67);
+            }
+            // =====================================
+            // シーン4 (15.5s - 26.0s): WARNING からの「永田ザウルス」降臨！
+            // =====================================
+            else {
+                const localT = t - 15.5;
+
+                // 15.5s - 17.2s: 緊急WARNINGアラート演出
+                if (t < 17.2) {
+                    const pulse = Math.abs(Math.sin(localT * 10));
+                    ctx.fillStyle = `rgba(225, 29, 72, ${0.25 + pulse * 0.35})`;
+                    ctx.fillRect(0, 0, w, h);
+
+                    // 上下の警告ストライプ帯
+                    ctx.fillStyle = '#ffd700';
+                    ctx.fillRect(0, h * 0.28, w, 12);
+                    ctx.fillRect(0, h * 0.72, w, 12);
+
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.shadowColor = '#ff0055';
+                    ctx.shadowBlur = 30;
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = `900 ${Math.floor(w * 0.075)}px "Orbitron", sans-serif`;
+                    ctx.fillText('WARNING!!', w / 2, h * 0.46);
+
+                    ctx.fillStyle = '#ffd700';
+                    ctx.font = `900 ${Math.floor(w * 0.026)}px "Noto Sans JP", sans-serif`;
+                    ctx.fillText('規格外の覇王反応を検知――！', w / 2, h * 0.59);
+                }
+                // 17.2s - 26.0s: 永田ザウルス降臨＆タイトルロゴ
+                else {
+                    const burstT = t - 17.2;
+                    const nagataCard = state.cards.find(c => c.id === 'card-nagata' || (c.name && c.name.includes('永田ザウルス'))) || DEFAULT_DATA.cards[0];
+                    const nagataPower = nagataCard.power !== undefined ? nagataCard.power : 9999;
+                    const zoom = Math.min(1, burstT * 4);
+
+                    // 黄金とピンクのオーラ背景
+                    const aura = ctx.createRadialGradient(w / 2, h / 2, 20, w / 2, h / 2, w * 0.55);
+                    aura.addColorStop(0, 'rgba(255, 215, 0, 0.42)');
+                    aura.addColorStop(0.5, 'rgba(255, 0, 127, 0.22)');
+                    aura.addColorStop(1, 'transparent');
+                    ctx.fillStyle = aura;
+                    ctx.fillRect(0, 0, w, h);
+
+                    // 昇りゆく黄金の火花パーティクル
+                    sparks.forEach(s => {
+                        const sy = ((s.y - burstT * s.speed) % 1 + 1) % 1;
+                        ctx.fillStyle = '#ffd700';
+                        ctx.beginPath();
+                        ctx.arc(s.x * w, sy * h, s.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+
+                    // 降臨フラッシュ（最初の一瞬）
+                    if (burstT < 0.35) {
+                        ctx.fillStyle = `rgba(255, 255, 255, ${(0.35 - burstT) * 2.5})`;
+                        ctx.fillRect(0, 0, w, h);
+                    }
+
+                    ctx.save();
+                    ctx.translate(w / 2, h * 0.48);
+                    ctx.scale(zoom, zoom);
+
+                    // 恐竜絵文字＆王冠オーラ
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.shadowColor = '#ffd700';
+                    ctx.shadowBlur = 40;
+                    ctx.font = `${Math.floor(w * 0.13)}px sans-serif`;
+                    ctx.fillText(nagataCard.emoji || '🦖', 0, -h * 0.12);
+
+                    // キャラ名「永田ザウルス」
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = `900 ${Math.floor(w * 0.062)}px "Dela Gothic One", sans-serif`;
+                    ctx.fillText(nagataCard.name || '永田ザウルス', 0, h * 0.08);
+
+                    // タイプ＆強さの数字
+                    ctx.fillStyle = '#ffd700';
+                    ctx.font = `900 ${Math.floor(w * 0.028)}px "Orbitron", sans-serif`;
+                    ctx.fillText(`${nagataCard.type || '恐竜・覇王属'}  //  POWER ${nagataPower}`, 0, h * 0.19);
+
+                    // エンディングロゴ表示 (22秒以降)
+                    if (t >= 22.0) {
+                        ctx.fillStyle = '#00f5d4';
+                        ctx.font = `900 ${Math.floor(w * 0.024)}px "Noto Sans JP", sans-serif`;
+                        ctx.fillText('パチモンカード 公式サイト好評公開中！', 0, h * 0.31);
+                    }
+
+                    ctx.restore();
+                }
+            }
+
+            ctx.restore();
+        }
+
+        // PVプレイヤーコントロール関数
+        window.togglePvPlay = function() {
+            pvState.playing = !pvState.playing;
+            const btn = document.getElementById('pv-play-btn');
+            const centerIcon = document.getElementById('pv-center-play-icon');
+            const recDot = document.getElementById('pv-rec-dot');
+            if (pvState.playing) {
+                pvState.lastFrameTime = performance.now();
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-pause"></i> 一時停止';
+                if (centerIcon) centerIcon.classList.add('hidden');
+                if (recDot) recDot.classList.add('animate-pulse');
+            } else {
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-play"></i> 再生する';
+                if (centerIcon) centerIcon.classList.remove('hidden');
+                if (recDot) recDot.classList.remove('animate-pulse');
+            }
+        };
+
+        window.restartPv = function() {
+            pvState.time = 0;
+            pvState.lastBeatStep = -1;
+            pvState.warningPlayed = false;
+            pvState.roarPlayed = false;
+            if (!pvState.playing) {
+                togglePvPlay();
+            }
+        };
+
+        window.togglePvSound = function() {
+            pvState.soundEnabled = !pvState.soundEnabled;
+            const btn = document.getElementById('pv-sound-btn');
+            if (pvState.soundEnabled) {
+                if (!pvState.audioCtx) {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContextClass) pvState.audioCtx = new AudioContextClass();
+                }
+                if (btn) {
+                    btn.innerHTML = '<i class="fa-solid fa-volume-high"></i> サウンド ON';
+                    btn.classList.add('bg-pachi-pink', 'text-white');
+                }
+                showToast('PVのサウンド演出をONにしました！', 'info');
+            } else {
+                if (btn) {
+                    btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i> サウンド OFF';
+                    btn.classList.remove('bg-pachi-pink', 'text-white');
+                }
+            }
+        };
+
+        window.jumpPvChapter = function(sec) {
+            pvState.time = sec;
+            pvState.lastBeatStep = -1;
+            pvState.warningPlayed = false;
+            pvState.roarPlayed = false;
+            if (!pvState.playing) {
+                togglePvPlay();
+            }
+        };
+
+        window.seekPv = function(e) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            pvState.time = ratio * PV_DURATION;
+            pvState.lastBeatStep = -1;
+            pvState.warningPlayed = false;
+            pvState.roarPlayed = false;
+        };
+
+        // ==========================================
+        // モバイルメニュー & モーダル開閉
+        // ==========================================
+        window.toggleMobileMenu = function() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu) menu.classList.toggle('hidden');
+        };
+
+        window.openModal = function(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.remove('hidden');
+                el.classList.add('flex');
+            }
+        };
+
+        window.closeModal = function(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.add('hidden');
+                el.classList.remove('flex');
+            }
+        };
+
+        // ==========================================
+        // 管理者ログイン・ログアウト処理
         // ==========================================
         window.openLoginModal = function() {
             if (state.isAdmin) {
                 showToast('すでに管理者としてログインしています！', 'info');
                 return;
             }
-            document.getElementById('admin-password-input').value = '';
+            const input = document.getElementById('admin-password-input');
+            if (input) input.value = '';
             openModal('login-modal');
+            setTimeout(() => input && input.focus(), 100);
         };
 
         window.handleLogin = function(e) {
             e.preventDefault();
-            const input = document.getElementById('admin-password-input').value;
-            // 指定されたパスワード「pachimon2026」を検証
-            if (input === 'pachimon2026') {
+            const pw = document.getElementById('admin-password-input').value;
+            if (pw === 'pachimon2026') {
                 state.isAdmin = true;
                 closeModal('login-modal');
                 updateAdminUI();
-                showToast('管理者としてログインしました！記事やカードの編集が可能です。', 'success');
+                renderAll();
+                showToast('管理者としてログインしました！各セクションを編集できます。', 'success');
             } else {
-                showToast('パスワードが違います！', 'error');
+                showToast('パスワードが違います！正しいパスワードを入力してください。', 'error');
             }
         };
 
         window.logoutAdmin = function() {
             state.isAdmin = false;
             updateAdminUI();
-            showToast('ログアウトしました。', 'info');
+            renderAll();
+            showToast('管理者モードを終了しました。', 'info');
         };
 
         function updateAdminUI() {
             const banner = document.getElementById('admin-banner');
-            const adminElements = document.querySelectorAll('.admin-only');
+            const adminBtns = document.querySelectorAll('.admin-only');
             const headerLoginBtn = document.getElementById('header-login-btn');
             const footerLoginBtn = document.getElementById('footer-login-btn');
 
             if (state.isAdmin) {
-                banner.classList.remove('hidden');
-                adminElements.forEach(el => el.classList.remove('hidden'));
+                banner?.classList.remove('hidden');
+                adminBtns.forEach(el => el.classList.remove('hidden'));
                 if (headerLoginBtn) headerLoginBtn.classList.add('hidden');
                 if (footerLoginBtn) footerLoginBtn.classList.add('hidden');
             } else {
-                banner.classList.add('hidden');
-                adminElements.forEach(el => el.classList.add('hidden'));
+                banner?.classList.add('hidden');
+                adminBtns.forEach(el => el.classList.add('hidden'));
                 if (headerLoginBtn) headerLoginBtn.classList.remove('hidden');
                 if (footerLoginBtn) footerLoginBtn.classList.remove('hidden');
             }
-            renderAll();
         }
 
-        window.openModal = function(id) {
-            const modal = document.getElementById(id);
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            }
-        };
-
-        window.closeModal = function(id) {
-            const modal = document.getElementById(id);
-            if (modal) {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        };
-
-        window.toggleMobileMenu = function() {
-            const menu = document.getElementById('mobile-menu');
-            if (menu) menu.classList.toggle('hidden');
-        };
-
-        function getTodayStr() {
+        function getTodayString() {
             const d = new Date();
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${y}.${m}.${day}`;
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}.${mm}.${dd}`;
         }
 
-        // 1. お知らせ追加・編集・削除
+        // ==========================================
+        // 1. お知らせの追加・編集・削除
+        // ==========================================
         window.openNewsModal = function(editId = '') {
-            const modalTitle = document.getElementById('news-modal-title');
+            const titleEl = document.getElementById('news-modal-title');
             const submitBtn = document.getElementById('news-submit-btn');
-            document.getElementById('news-edit-id').value = editId;
+            const idInput = document.getElementById('news-edit-id');
+            const tagInput = document.getElementById('news-tag');
+            const titleInput = document.getElementById('news-title');
+            const bodyInput = document.getElementById('news-body');
 
             if (editId) {
                 const target = state.news.find(n => n.id === editId);
-                if (target) {
-                    modalTitle.innerHTML = '<i class="fa-solid fa-pen text-pachi-pink mr-2"></i>お知らせを編集';
-                    submitBtn.textContent = '変更を保存する';
-                    document.getElementById('news-tag').value = target.tag;
-                    document.getElementById('news-title').value = target.title;
-                    document.getElementById('news-body').value = target.body;
-                }
+                if (!target) return;
+                idInput.value = target.id;
+                tagInput.value = target.tag || 'お知らせ';
+                titleInput.value = target.title || '';
+                bodyInput.value = target.body || '';
+                titleEl.innerHTML = '<i class="fa-solid fa-pen text-pachi-cyan mr-2"></i>お知らせを編集';
+                submitBtn.textContent = '変更を保存する';
             } else {
-                modalTitle.innerHTML = '<i class="fa-solid fa-bullhorn text-pachi-pink mr-2"></i>お知らせを追加';
+                idInput.value = '';
+                tagInput.value = '新弾情報';
+                titleInput.value = '';
+                bodyInput.value = '';
+                titleEl.innerHTML = '<i class="fa-solid fa-bullhorn text-pachi-pink mr-2"></i>お知らせを追加';
                 submitBtn.textContent = '公開する';
-                document.getElementById('news-title').value = '';
-                document.getElementById('news-body').value = '';
             }
             openModal('news-modal');
         };
@@ -1214,72 +2159,67 @@
         window.handleSaveNews = async function(e) {
             e.preventDefault();
             const editId = document.getElementById('news-edit-id').value;
-            const payload = {
-                tag: document.getElementById('news-tag').value,
-                title: document.getElementById('news-title').value,
-                body: document.getElementById('news-body').value
-            };
+            const tag = document.getElementById('news-tag').value;
+            const title = document.getElementById('news-title').value.trim();
+            const body = document.getElementById('news-body').value.trim();
 
             if (editId) {
-                // 既存のお知らせを更新
-                if (state.useFirebase && !editId.startsWith('news-')) {
+                const existing = state.news.find(n => n.id === editId);
+                const updated = { ...existing, tag, title, body };
+                if (state.useFirebase && state.db) {
                     try {
-                        await updateDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'news', editId), payload);
+                        await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'news', editId), updated);
                     } catch (err) {
-                        const idx = state.news.findIndex(n => n.id === editId);
-                        if (idx !== -1) state.news[idx] = { ...state.news[idx], ...payload };
-                        saveLocalData();
+                        state.news = state.news.map(n => n.id === editId ? updated : n);
                         renderNews();
                     }
                 } else {
-                    const idx = state.news.findIndex(n => n.id === editId);
-                    if (idx !== -1) state.news[idx] = { ...state.news[idx], ...payload };
-                    saveLocalData();
+                    state.news = state.news.map(n => n.id === editId ? updated : n);
                     renderNews();
                 }
-                closeModal('news-modal');
                 showToast('お知らせを更新しました！', 'success');
             } else {
-                // 新規追加
                 const newItem = {
-                    date: getTodayStr(),
-                    ...payload,
+                    date: getTodayString(),
+                    tag,
+                    title,
+                    body,
                     createdAt: Date.now()
                 };
-                if (state.useFirebase) {
+                if (state.useFirebase && state.db) {
                     try {
                         await addDoc(collection(state.db, 'artifacts', state.appId, 'public', 'data', 'news'), newItem);
                     } catch (err) {
                         state.news.unshift({ id: 'news-' + Date.now(), ...newItem });
-                        saveLocalData();
                         renderNews();
                     }
                 } else {
                     state.news.unshift({ id: 'news-' + Date.now(), ...newItem });
-                    saveLocalData();
                     renderNews();
                 }
-                closeModal('news-modal');
                 showToast('新しいお知らせを公開しました！', 'success');
             }
+            closeModal('news-modal');
         };
 
         window.deleteNews = async function(id) {
-            if (state.useFirebase && !id.startsWith('news-')) {
+            if (state.useFirebase && state.db) {
                 try {
                     await deleteDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'news', id));
                 } catch (err) {
-                    showToast('削除エラーが発生しました', 'error');
+                    state.news = state.news.filter(n => n.id !== id);
+                    renderNews();
                 }
             } else {
                 state.news = state.news.filter(n => n.id !== id);
-                saveLocalData();
                 renderNews();
             }
-            showToast('お知らせを削除しました', 'info');
+            showToast('お知らせを削除しました。', 'info');
         };
 
-        // 2. 遊び方編集
+        // ==========================================
+        // 2. 遊び方の編集
+        // ==========================================
         window.openHowtoModal = function() {
             document.getElementById('howto-step1').value = state.howto.step1 || '';
             document.getElementById('howto-step2').value = state.howto.step2 || '';
@@ -1290,54 +2230,59 @@
         window.handleSaveHowto = async function(e) {
             e.preventDefault();
             const updatedHowto = {
-                step1: document.getElementById('howto-step1').value,
-                step2: document.getElementById('howto-step2').value,
-                step3: document.getElementById('howto-step3').value
+                step1: document.getElementById('howto-step1').value.trim(),
+                step2: document.getElementById('howto-step2').value.trim(),
+                step3: document.getElementById('howto-step3').value.trim()
             };
-            if (state.useFirebase) {
+            state.howto = updatedHowto;
+            if (state.useFirebase && state.db) {
                 try {
                     await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'settings', 'howto'), updatedHowto);
                 } catch (err) {
-                    state.howto = updatedHowto;
-                    saveLocalData();
-                    renderHowto();
+                    // ローカル状態はすでに更新済み
                 }
-            } else {
-                state.howto = updatedHowto;
-                saveLocalData();
-                renderHowto();
             }
+            renderHowto();
             closeModal('howto-modal');
-            showToast('遊び方・ルールを更新しました！', 'success');
+            showToast('遊び方・ルールを保存しました！', 'success');
         };
 
-        // 3. カード追加・編集・削除
+        // ==========================================
+        // 3. カード図鑑の追加・編集・削除
+        // ==========================================
         window.openCardModal = function(editId = '') {
             const modalTitle = document.getElementById('card-modal-title');
             const submitBtn = document.getElementById('card-submit-btn');
-            document.getElementById('card-edit-id').value = editId;
+            const idInput = document.getElementById('card-edit-id');
+            const nameInput = document.getElementById('card-name');
+            const powerInput = document.getElementById('card-power');
+            const typeInput = document.getElementById('card-type');
+            const emojiInput = document.getElementById('card-emoji');
+            const descInput = document.getElementById('card-desc');
+            const holoInput = document.getElementById('card-holo');
 
             if (editId) {
                 const target = state.cards.find(c => c.id === editId);
-                if (target) {
-                    modalTitle.innerHTML = '<i class="fa-solid fa-pen text-pachi-gold mr-2"></i>カード情報を編集';
-                    submitBtn.textContent = '変更を保存する';
-                    document.getElementById('card-name').value = target.name;
-                    document.getElementById('card-power').value = target.power !== undefined ? target.power : (target.atk || 1000);
-                    document.getElementById('card-type').value = target.type;
-                    document.getElementById('card-emoji').value = target.emoji || '👾';
-                    document.getElementById('card-desc').value = target.desc || [target.skill, target.flavor].filter(Boolean).join('\n');
-                    document.getElementById('card-holo').checked = Boolean(target.isHolo || target.rarity === 'SSR');
-                }
+                if (!target) return;
+                idInput.value = target.id;
+                nameInput.value = target.name || '';
+                powerInput.value = target.power !== undefined ? target.power : 1000;
+                typeInput.value = target.type || '';
+                emojiInput.value = target.emoji || '👾';
+                descInput.value = target.desc || '';
+                holoInput.checked = Boolean(target.isHolo || target.rarity === 'SSR');
+                modalTitle.innerHTML = '<i class="fa-solid fa-pen text-pachi-gold mr-2"></i>パチモンカードを編集';
+                submitBtn.textContent = '変更を保存する';
             } else {
+                idInput.value = '';
+                nameInput.value = '';
+                powerInput.value = '1500';
+                typeInput.value = '';
+                emojiInput.value = '🐉';
+                descInput.value = '';
+                holoInput.checked = false;
                 modalTitle.innerHTML = '<i class="fa-solid fa-sparkles text-pachi-gold mr-2"></i>新しいパチモンカードを追加';
                 submitBtn.textContent = '図鑑に登録する';
-                document.getElementById('card-name').value = '';
-                document.getElementById('card-power').value = 1500;
-                document.getElementById('card-type').value = '';
-                document.getElementById('card-emoji').value = '🐉';
-                document.getElementById('card-desc').value = '';
-                document.getElementById('card-holo').checked = false;
             }
             openModal('card-modal');
         };
@@ -1345,107 +2290,91 @@
         window.handleSaveCard = async function(e) {
             e.preventDefault();
             const editId = document.getElementById('card-edit-id').value;
-            const payload = {
-                name: document.getElementById('card-name').value,
-                power: Number(document.getElementById('card-power').value),
-                type: document.getElementById('card-type').value,
-                emoji: document.getElementById('card-emoji').value || '👾',
-                desc: document.getElementById('card-desc').value,
-                isHolo: document.getElementById('card-holo').checked
-            };
+            const name = document.getElementById('card-name').value.trim();
+            const powerVal = parseInt(document.getElementById('card-power').value, 10);
+            const power = isNaN(powerVal) ? 0 : powerVal;
+            const type = document.getElementById('card-type').value.trim();
+            const emoji = document.getElementById('card-emoji').value.trim() || '👾';
+            const desc = document.getElementById('card-desc').value.trim();
+            const isHolo = document.getElementById('card-holo').checked;
 
             if (editId) {
-                // 既存カードの編集
-                if (state.useFirebase && !editId.startsWith('card-')) {
+                const updatedCard = { id: editId, name, power, type, emoji, desc, isHolo };
+                if (state.useFirebase && state.db) {
                     try {
-                        await updateDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'cards', editId), payload);
+                        await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'cards', editId), updatedCard);
                     } catch (err) {
-                        const idx = state.cards.findIndex(c => c.id === editId);
-                        if (idx !== -1) state.cards[idx] = { ...state.cards[idx], ...payload };
-                        saveLocalData();
-                        updateHeroFeaturedCard();
-                        renderCards();
-                    }
-                } else if (state.useFirebase && editId === 'card-nagata') {
-                    // 初期サンプルの永田ザウルスを編集した場合はFirestoreにも新規保存
-                    try {
-                        await addDoc(collection(state.db, 'artifacts', state.appId, 'public', 'data', 'cards'), { ...payload, createdAt: Date.now() });
-                    } catch (err) {
-                        const idx = state.cards.findIndex(c => c.id === editId);
-                        if (idx !== -1) state.cards[idx] = { ...state.cards[idx], ...payload };
-                        saveLocalData();
+                        state.cards = state.cards.map(c => c.id === editId ? updatedCard : c);
                         updateHeroFeaturedCard();
                         renderCards();
                     }
                 } else {
-                    const idx = state.cards.findIndex(c => c.id === editId);
-                    if (idx !== -1) state.cards[idx] = { ...state.cards[idx], ...payload };
-                    saveLocalData();
+                    state.cards = state.cards.map(c => c.id === editId ? updatedCard : c);
                     updateHeroFeaturedCard();
                     renderCards();
                 }
-                closeModal('card-modal');
-                showToast(`「${payload.name}」の情報を更新しました！`, 'success');
+                showToast(`「${name}」の情報を更新しました！`, 'success');
             } else {
-                // 新規追加
-                const newCard = {
-                    ...payload,
-                    createdAt: Date.now()
-                };
-                if (state.useFirebase) {
+                const newCardData = { name, power, type, emoji, desc, isHolo, createdAt: Date.now() };
+                if (state.useFirebase && state.db) {
                     try {
-                        await addDoc(collection(state.db, 'artifacts', state.appId, 'public', 'data', 'cards'), newCard);
+                        await addDoc(collection(state.db, 'artifacts', state.appId, 'public', 'data', 'cards'), newCardData);
                     } catch (err) {
-                        state.cards.push({ id: 'card-' + Date.now(), ...newCard });
-                        saveLocalData();
+                        state.cards.push({ id: 'card-' + Date.now(), ...newCardData });
                         renderCards();
                     }
                 } else {
-                    state.cards.push({ id: 'card-' + Date.now(), ...newCard });
-                    saveLocalData();
+                    state.cards.push({ id: 'card-' + Date.now(), ...newCardData });
                     renderCards();
                 }
-                closeModal('card-modal');
-                showToast(`新カード「${newCard.name}」を図鑑に登録しました！`, 'success');
+                showToast(`「${name}」をカード図鑑に登録しました！`, 'success');
             }
+            closeModal('card-modal');
         };
 
         window.deleteCard = async function(id) {
-            if (state.useFirebase && !id.startsWith('card-')) {
+            if (id === 'card-nagata') return;
+            if (state.useFirebase && state.db) {
                 try {
                     await deleteDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'cards', id));
                 } catch (err) {
-                    showToast('削除エラーが発生しました', 'error');
+                    state.cards = state.cards.filter(c => c.id !== id);
+                    renderCards();
                 }
             } else {
                 state.cards = state.cards.filter(c => c.id !== id);
-                saveLocalData();
                 renderCards();
             }
-            showToast('カードを図鑑から削除しました', 'info');
+            showToast('カードを図鑑から削除しました。', 'info');
         };
 
-        // 4. 記事投稿・編集・削除
+        // ==========================================
+        // 4. 開発記事の投稿・編集・削除
+        // ==========================================
         window.openArticleModal = function(editId = '') {
             const modalTitle = document.getElementById('article-modal-title');
             const submitBtn = document.getElementById('article-submit-btn');
-            document.getElementById('article-edit-id').value = editId;
+            const idInput = document.getElementById('article-edit-id');
+            const titleInput = document.getElementById('article-title');
+            const authorInput = document.getElementById('article-author');
+            const contentInput = document.getElementById('article-content');
 
             if (editId) {
                 const target = state.articles.find(a => a.id === editId);
-                if (target) {
-                    modalTitle.innerHTML = '<i class="fa-solid fa-pen text-pachi-pink mr-2"></i>記事を編集する';
-                    submitBtn.textContent = '変更を保存する';
-                    document.getElementById('article-title').value = target.title;
-                    document.getElementById('article-author').value = target.author;
-                    document.getElementById('article-content').value = target.content;
-                }
+                if (!target) return;
+                idInput.value = target.id;
+                titleInput.value = target.title || '';
+                authorInput.value = target.author || 'パチモン制作者';
+                contentInput.value = target.content || '';
+                modalTitle.innerHTML = '<i class="fa-solid fa-pen text-pachi-cyan mr-2"></i>記事を編集する';
+                submitBtn.textContent = '変更を保存する';
             } else {
+                idInput.value = '';
+                titleInput.value = '';
+                authorInput.value = 'パチモン制作者';
+                contentInput.value = '';
                 modalTitle.innerHTML = '<i class="fa-solid fa-pen-nib text-pachi-pink mr-2"></i>新しい記事を書く';
                 submitBtn.textContent = '記事を公開する';
-                document.getElementById('article-title').value = '';
-                document.getElementById('article-author').value = 'パチモン制作者';
-                document.getElementById('article-content').value = '';
             }
             openModal('article-modal');
         };
@@ -1453,75 +2382,79 @@
         window.handleSaveArticle = async function(e) {
             e.preventDefault();
             const editId = document.getElementById('article-edit-id').value;
-            const payload = {
-                title: document.getElementById('article-title').value,
-                author: document.getElementById('article-author').value,
-                content: document.getElementById('article-content').value
-            };
+            const title = document.getElementById('article-title').value.trim();
+            const author = document.getElementById('article-author').value.trim();
+            const content = document.getElementById('article-content').value.trim();
 
             if (editId) {
-                // 既存記事の更新
-                if (state.useFirebase && !editId.startsWith('art-')) {
+                const existing = state.articles.find(a => a.id === editId);
+                const updated = { ...existing, title, author, content };
+                if (state.useFirebase && state.db) {
                     try {
-                        await updateDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'articles', editId), payload);
+                        await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'articles', editId), updated);
                     } catch (err) {
-                        const idx = state.articles.findIndex(a => a.id === editId);
-                        if (idx !== -1) state.articles[idx] = { ...state.articles[idx], ...payload };
-                        saveLocalData();
+                        state.articles = state.articles.map(a => a.id === editId ? updated : a);
                         renderArticles();
                     }
                 } else {
-                    const idx = state.articles.findIndex(a => a.id === editId);
-                    if (idx !== -1) state.articles[idx] = { ...state.articles[idx], ...payload };
-                    saveLocalData();
+                    state.articles = state.articles.map(a => a.id === editId ? updated : a);
                     renderArticles();
                 }
-                closeModal('article-modal');
-                showToast('記事の内容を更新しました！', 'success');
+                showToast('記事を更新しました！', 'success');
             } else {
-                // 新規投稿
-                const newArticle = {
-                    date: getTodayStr(),
-                    ...payload,
+                const newArt = {
+                    date: getTodayString(),
+                    title,
+                    author,
+                    content,
                     createdAt: Date.now()
                 };
-                if (state.useFirebase) {
+                if (state.useFirebase && state.db) {
                     try {
-                        await addDoc(collection(state.db, 'artifacts', state.appId, 'public', 'data', 'articles'), newArticle);
+                        await addDoc(collection(state.db, 'artifacts', state.appId, 'public', 'data', 'articles'), newArt);
                     } catch (err) {
-                        state.articles.unshift({ id: 'art-' + Date.now(), ...newArticle });
-                        saveLocalData();
+                        state.articles.unshift({ id: 'art-' + Date.now(), ...newArt });
                         renderArticles();
                     }
                 } else {
-                    state.articles.unshift({ id: 'art-' + Date.now(), ...newArticle });
-                    saveLocalData();
+                    state.articles.unshift({ id: 'art-' + Date.now(), ...newArt });
                     renderArticles();
                 }
-                closeModal('article-modal');
                 showToast('新しい記事を公開しました！', 'success');
             }
+            closeModal('article-modal');
         };
 
         window.deleteArticle = async function(id) {
-            if (state.useFirebase && !id.startsWith('art-')) {
+            if (state.useFirebase && state.db) {
                 try {
                     await deleteDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'articles', id));
                 } catch (err) {
-                    showToast('削除エラーが発生しました', 'error');
+                    state.articles = state.articles.filter(a => a.id !== id);
+                    renderArticles();
                 }
             } else {
                 state.articles = state.articles.filter(a => a.id !== id);
-                saveLocalData();
                 renderArticles();
             }
-            showToast('記事を削除しました', 'info');
+            showToast('記事を削除しました。', 'info');
         };
 
-        // ページ読み込み時に起動
-        window.addEventListener('DOMContentLoaded', () => {
+        // ==========================================
+        // アプリ起動時の初期化実行
+        // ==========================================
+        function bootstrap() {
+            initCyberBackground();
+            initScrollAnimations();
+            initPromoMovie();
             initAppStorage();
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bootstrap);
+        } else {
+            bootstrap();
+        }
     </script>
 </body>
 </html>
